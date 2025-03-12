@@ -1,0 +1,171 @@
+@use "../utils/variables" as vars;
+@use "../utils/mixins";
+
+/* -- Header -- */
+header {
+
+  padding: 0.5rem 1rem;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  position: fixed;
+  left: 0;
+  right: 0;
+ z-index: 99;
+
+  // Bouton pour afficher le menu (uniquement mobile & tablette)
+  .menu-button {
+    border: none;
+    width: 40px;
+    height: 40px;
+    background: url("/icons/menu-icon-white.png") center/cover;
+
+    // Variante du bouton utilisée pour afficher une croix de fermeture
+    &--close {
+      background: url("/icons/menu-icon-close.png") center/cover;
+      align-self: flex-end;
+      width: 40px;
+    height: 40px;
+    border: none;
+    }
+  }
+
+  /* Le menu n'est pas visible au format mobile & tablette */
+  .nav-menu {
+ 
+    z-index: 1;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: vars.$background-color;
+    width: 100%;
+    height: 30vh;
+    margin: 0;
+    padding: 0.5rem 1rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
+    border-bottom: 3px solid vars.$border-color;
+    /* On indique des règles pour notre liste du menu... */
+    & ul {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      list-style-type: none;
+      padding: 0;
+    }
+
+    /* ... ainsi qu'aux enfants qui la compose */
+    & li {
+      padding: 0.5rem 1rem;
+      font-size: 24px;
+      border-radius: 0.5rem;
+      transition: ease-in-out 0.4s all;
+    }
+    /* On met en place quelques règles pour que nos liens soient jolis et raccord avec la maquette */
+    &__link {
+  
+      text-decoration: none;
+      transition: ease-in-out 0.3s all;
+    }
+  }
+
+  // Logo qui apparaît uniquement sur le menu mobile & tablette
+  .menu-logo {
+   margin: 5em;
+    max-width: 20%;
+    height: auto;// Définissez la hauteur de votre choix
+
+  
+    object-fit: cover; // Empêche l'étirement de l'image, elle sera coupée si nécessaire
+    
+  }
+  
+ 
+}
+ .brand {
+      width: 100%;
+      min-height: 25vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      &__logo {
+        width: 100%;
+      }
+    }
+
+// MEDIA-QUERIES
+@include mixins.desktop {
+  /* -- Header -- */
+  header {
+  padding: 0px;
+  
+
+    /* Le bouton de menu disparaît au format desktop */
+    .menu-button {
+      display: none;
+    }
+
+    /* On fait apparaître la navbar dans le header  */
+    .nav-menu {
+     
+      display: flex !important; // "!important" est utilisé pour afficher correctement le menu en desktop entre chaque page sans rechargement
+      flex-direction: row;
+      justify-content: flex-end;
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background: vars.$background-color;
+
+      /* On indique des règles pour notre liste du menu... */
+      ul {
+        display: flex;
+        flex-direction: row;
+        list-style-type: none;
+        color: vars.$accent-color;
+      }
+
+      /* ... ainsi qu'aux enfants qui la compose */
+      li {
+        padding: 0.5rem 1rem;
+        font-size: 24px;
+        border-radius: 0.5rem;
+        transition: ease-in-out 0.4s all;
+      }
+
+      /* On ajoute des règles pour faire effet au survol */
+      li:hover {
+        background:  vars.$accent-color;
+        transition: ease-in-out 0.4s all;
+      }
+
+      /* On met en place quelques règles pour que nos liens soient jolis et raccord avec la maquette */
+      &__link {
+        color: vars.$accent-color;
+        text-decoration: none;
+        transition: ease-in-out 0.3s all;
+      }
+
+      // ...ainsi qu'un effet au survol de ceux-ci
+      &__link:hover {
+        color: #fff;
+        transition: ease-in-out 0.3s all;
+      }
+    }
+
+
+    .menu-logo {
+    margin: 1em;
+     width: 140px;
+      position: absolute; /* Position fixe */
+      top: 0; /* Aligner en haut de la page */
+      left: 0; /* Aligner à gauche de la page */
+    }
+  }
+}
+

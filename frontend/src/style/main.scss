@@ -1,0 +1,25 @@
+// 1 - Base
+@use "base/normalize";
+@use "base/base";
+@use "base/fonts";
+
+
+
+// 3 - Layout
+@use "layout/header";
+@use "layout/footer";
+
+
+// 4 - Components
+@use "components/card";
+@use "components/random";
+@use "components/edito";
+
+// 5 - Pages
+@use "pages/home";
+@use "pages/recette";
+
+// 6 - Utils 
+
+@use "./utils/variables";
+@use"./utils/mixins";

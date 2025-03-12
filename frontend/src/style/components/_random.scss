@@ -1,0 +1,72 @@
+ @use "../utils/variables" as vars;
+ @use "../utils/mixins";
+
+
+
+ .random-recipe {
+   text-align: center;
+
+
+   & .random-recipe-img-header {
+
+     border-radius: 8px;
+     box-shadow: 2px 2px 4px vars.$border-color;
+     width: 30%;
+     height: 30%;
+
+     display: block;
+     margin: 0 auto
+   }
+
+   & .recip-random-timer {
+
+     height: 1em;
+     position: relative;
+   }
+   .icone_ingredient {
+     height: 24px;
+     padding: 0 0.5rem;
+
+   }
+   .recipe-random-ingredient{
+
+   padding: 1em;
+
+   }
+
+ }
+
+ @include mixins.desktop {
+
+ .random-recipe {
+
+
+& .random-recipe-img-header{
+width: 20em;
+height: 20em;
+}
+   .recipe {
+
+
+
+
+     img {
+height: 10em;
+width: 1em;
+     }
+
+     .ingredient {}
+
+     .preparation {}
+
+     h2 {}
+
+     ul,
+     ol {
+
+
+       li {}
+     }
+   }
+  }
+ }
