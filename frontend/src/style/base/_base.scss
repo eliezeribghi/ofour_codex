@@ -1,0 +1,121 @@
+@use "../utils/variables" as vars;
+@use "../utils/mixins";
+@use 'sass:color';
+
+/* -- Styles généraux --  */
+body {
+  font-family: vars.$font-family; // Utilise la police définie dans les variables
+  overflow: auto;
+  min-height: 100vh;
+  background: vars.$background-color; // Utilise la couleur de fond définie
+  color: vars.$text-color;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+}
+
+* {
+  color: inherit;
+  box-sizing: border-box;
+  text-decoration: none;
+}
+
+main {
+  width: 100%;
+}
+
+#app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+}
+
+li {
+  list-style: none;
+}
+
+a {
+  color: vars.$accent-color;
+  border-bottom: 2px solid vars.$accent-color;
+  text-decoration: none;
+
+  &:hover {
+    color: color.adjust(vars.$accent-color, $lightness: -10%);
+    border-bottom-color: color.adjust(vars.$accent-color, $lightness: -10%);
+  }
+}
+button {
+  background-color: vars.$accent-color; // Couleur jaune pâle
+  color: vars.$primary-color;           // Texte du bouton en brun foncé
+  border: 2px solid vars.$border-color; // Bordure marron moyen
+  padding: 0.75rem 1.5rem;
+  border-radius: 5px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: color.adjust(vars.$accent-color, $lightness: 10%);// Légère variation au survol
+  }
+}
+
+
+// Utilise le mixin title-style pour les titres
+h1 {
+  @include mixins.title-style(3rem, vars.$primary-color);
+  font-size: 24px;
+  text-align: center;
+  color: vars.$primary-color;
+}
+
+h2 {
+  @include mixins.title-style(2.2rem, vars.$secondary-color);
+  font-size: 20px;
+}
+
+h3 {
+  font-size: 18px;
+  color: vars.$primary-color;
+}
+
+p {
+  color: vars.$text-color;
+  font-size: vars.$font-size-base;
+}
+
+@include mixins.tablet {
+  h1 {
+    font-size: 36px;
+  }
+
+  h2 {
+    font-size: 30px;
+  }
+
+  h3 {
+    font-size: 24px;
+  }
+
+  p {
+    font-size: 18px;
+  }
+}
+
+@include mixins.desktop {
+  h1 {
+    font-size: 48px;
+  }
+
+  h2 {
+    font-size: 36px;
+  }
+
+  h3 {
+    font-size: 30px;
+  }
+
+  p {
+    font-size: 24px;
+  }
+}

@@ -1,0 +1,137 @@
+@use '../utils/variables' as vars;
+@use '../utils/mixins' as mix;
+
+/* -- CARTES -- */
+
+/* Conteneur des cartes de thème */
+.theme-cards-container {
+  display: flex;
+  flex-wrap: wrap;
+  /* Les cartes peuvent passer à la ligne si l'espace est insuffisant */
+  justify-content: space-between;
+  /* Espace égal entre les cartes */
+  gap: 20px;
+  /* Espace entre les cartes */
+  padding: 2em;
+  /* Espace autour des cartes */
+  align-items: stretch;
+
+  @include mix.desktop {
+
+    padding: 10% 20% 10% 20%;
+    /* Espace autour des cartes */
+
+
+
+  }
+}
+
+/* Carte de thème */
+
+.theme-card {
+  height: 360px;
+  /* Hauteur de la carte */
+  display: flex;
+  flex-direction: column;
+  /* Les éléments enfants sont empilés verticalement */
+  justify-content: flex-end;
+  /* Contenu en bas de la carte */
+  border-radius: 8px;
+  /* Coins arrondis */
+  box-shadow: 2px 2px 4px vars.$border-color;
+
+  /* Couleur de fond de la carte */
+
+  /* Couleur du texte */
+width: calc(50% - 5%);
+
+  /* Deux cartes par ligne avec un espace de 20px entre elles */
+
+
+  /* Informations en bas de la carte */
+  &__informations {
+    height: auto;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    background-color: vars.$background-color;
+    /* Couleur de fond */
+    overflow: hidden;
+    /* Masque le contenu qui dépasse de l'élément */
+  }
+
+  /* Liste des informations */
+  &__infos-list {
+    list-style-type: none;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    /* Les éléments peuvent passer à la ligne si l'espace est insuffisant */
+    padding: 0;
+    margin: 0;
+  }
+
+  /* Élément d'information */
+  &__infos-elt {
+    min-width: 45px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 0.1rem;
+    /* Marge en bas de chaque élément */
+    font-weight: bold;
+    font-size: x-small;
+  }
+
+  /* Dernier élément d'information sans marge en bas */
+  &__infos-elt:last-child {
+    margin-bottom: 0;
+  }
+
+  /* Icône associée à l'élément d'information */
+  &__infos-elt>img {
+    height: 24px;
+    padding: 0 0.5rem;
+  }
+
+  /* Bouton en bas de la carte */
+  &__button {
+    width: 100%;
+    height: 48px;
+    border-radius: 0 0 8px 8px;
+    /* Couleur du texte */
+    text-decoration: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+  }
+
+
+}
+
+
+  .modal-title {
+text-align: center;
+  }
+
+  .modal-contenu{
+
+text-align: center;
+
+  }
+  .modal-image {
+    display: block;
+    justify-content: center;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    height: 10em;
+    width: 10em;
+
+  }
+
+
+
+

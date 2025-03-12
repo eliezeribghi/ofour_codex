@@ -1,0 +1,45 @@
+[
+    {
+      "id": 1,
+      "price": 10,
+      "size": "Small",
+      "imageUrl": "/path/to/image1.jpg",
+      "url": "/space/1"
+    },
+    {
+      "id": 2,
+      "price": 20,
+      "size": "Medium",
+      "imageUrl": "/path/to/image2.jpg",
+      "url": "/space/2"
+    },
+    {
+      "id": 3,
+      "price": 30,
+      "size": "Large",
+      "imageUrl": "/path/to/image3.jpg",
+      "url": "/space/3"
+    },
+    {
+      "id": 4,
+      "price": 10,
+      "size": "Small",
+      "imageUrl": "/path/to/image1.jpg",
+      "url": "/space/1"
+    },
+    {
+      "id": 5,
+      "price": 20,
+      "size": "Medium",
+      "imageUrl": "/path/to/image2.jpg",
+      "url": "/space/2"
+    },
+    {
+      "id": 6,
+      "price": 30,
+      "size": "Large",
+      "imageUrl": "/path/to/image3.jpg",
+      "url": "/space/3"
+    }
+
+  ]

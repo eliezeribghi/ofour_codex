@@ -1,0 +1,44 @@
+@use "../utils/variables" as *;
+@use "../utils/mixins";
+
+
+.presentation {
+    block-size: auto;
+ 
+
+    display: inline-block;
+    text-align: center;
+    line-height: 1.5;
+    
+
+    /* -- MAIN TITLE -- */
+     &__title {
+      margin: 4rem 0;
+  }}
+
+  @include mixins.tablet {
+    .presentation {
+      margin: 0 3rem;
+
+      /* -- MAIN TITLE -- */
+      &__title {
+        margin: 4rem 0;
+      }
+    }
+  }
+  @include mixins.desktop{
+  .presentation {
+      
+
+    
+    &__paragraph {
+      padding: 0 2rem;
+    }
+
+    // On met le titre en valeur
+    &__title {
+      text-align: center;
+      margin: 2rem 2rem;
+    }
+  }
+}
