@@ -44,7 +44,7 @@ jobs:
 
       - name: Start MySQL container
         run: |
-          docker run --name my-mysql -e MYSQL_ROOT_PASSWORD="${{ secrets.MYSQL_ROOT_PASSWORD }}" -e MYSQL_DATABASE=ofour -p 3306:3306 -d mysql:5.7
+          docker run --name my-mysql -e MYSQL_ROOT_PASSWORD="${{ secrets.MYSQL_ROOT_PASSWORD }}" -e MYSQL_DATABASE=ofour -p 3307:3306 -d mysql:5.7
 
       - name: Copy .env file
         run: |
@@ -52,7 +52,7 @@ jobs:
 
       - name: Configure environment (MySQL details)
         run: |
-         # Ajoute ou modifie les variables d'environnement dans le fichier .env
+         
          echo "DB_CONNECTION=mysql" >> ./backend/.env
          echo "DB_HOST=mysql" >> ./backend/.env
          echo "DB_PORT=3306" >> ./backend/.env
