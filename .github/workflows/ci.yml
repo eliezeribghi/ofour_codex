@@ -70,8 +70,6 @@ jobs:
           php-version: '8.2'
           extensions: mbstring, xml, bcmath, curl, zip
 
-      - 
-
       - name: Install Composer dependencies
         working-directory: ./backend
         run: composer install --prefer-dist --no-progress --no-suggest --no-interaction
