@@ -1,11 +1,11 @@
 name: check ofour
 run-name: ${{ github.actor }}
 on:
-push:
-branches: 
+ push:
+ branches: 
  - github-action
 
-jobs:
+ jobs:
 
   build:
     runs-on: ubuntu-latest
@@ -18,7 +18,7 @@ jobs:
 
       - name:  Démarrer Docker Compose
         run: docker compose up -d
-        
+
       - name:  Attendre que les services soient prêts
         run: sleep 100 
 
