@@ -3,11 +3,10 @@ run-name: ${{ github.actor }}
 
 on:
   push:
-   branches: 
-   - github-action
+    branches: 
+      - github-action
 
 jobs:
-
   build:
     runs-on: ubuntu-latest
     steps:
