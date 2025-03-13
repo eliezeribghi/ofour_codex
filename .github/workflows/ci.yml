@@ -13,9 +13,7 @@ jobs:
       - name: Cloner le dépôt
         uses: actions/checkout@v4
 
-      - name: Installer Docker Compose
-        run: sudo apt-get update && sudo apt-get install -y docker compose
-
+      
       - name:  Démarrer Docker Compose
         run: docker compose up -d
 
