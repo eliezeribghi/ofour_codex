@@ -1,11 +1,12 @@
 name: check ofour
 run-name: ${{ github.actor }}
-on:
- push:
- branches: 
- - github-action
 
- jobs:
+on:
+  push:
+   branches: 
+   - github-action
+
+jobs:
 
   build:
     runs-on: ubuntu-latest
