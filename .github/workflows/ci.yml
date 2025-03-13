@@ -44,20 +44,25 @@ jobs:
 
       - name: Start MySQL container
         run: |
-          docker run --name my-mysql -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=ofour -p 3307:3306 -d mysql:5.7
+          docker run --name my-mysql -e MYSQL_ROOT_PASSWORD="${{ secrets.MYSQL_ROOT_PASSWORD }}" -e MYSQL_DATABASE=ofour -p 3306:3306 -d mysql:5.7
 
-      - name: Wait for MySQL
+      - name: Copy .env file
         run: |
-          for i in {1..30}; do
-            if mysql -h 127.0.0.1 -u root -proot -e "SELECT 1;" &> /dev/null; then
-              echo "MySQL is ready!"
-              exit 0
-            fi
-            echo "Waiting for MySQL..."
-            sleep 5
-          done
-          echo "MySQL did not start in time." >&2
-          exit 1
+         printf "%s" "${{ secrets.MY_ENV_FILE }}" > ./backend/.env
+
+      - name: Configure environment (MySQL details)
+        run: |
+         # Ajoute ou modifie les variables d'environnement dans le fichier .env
+         echo "DB_CONNECTION=mysql" >> ./backend/.env
+         echo "DB_HOST=mysql" >> ./backend/.env
+         echo "DB_PORT=3306" >> ./backend/.env
+         echo "DB_DATABASE=ofour" >> ./backend/.env
+         echo "DB_USERNAME=user_db" >> ./backend/.env
+         echo "DB_PASSWORD=M0tDeP@ssSecur3!" >> ./backend/.env
+         echo "MYSQL_ROOT_PASSWORD=root" >> ./backend/.env
+         echo "ADMINER_DEFAULT_SERVER=mysql" >> ./backend/.env
+         echo "Environment variables set successfully."
+
 
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
@@ -65,8 +70,7 @@ jobs:
           php-version: '8.2'
           extensions: mbstring, xml, bcmath, curl, zip
 
-      - name: Copy .env file
-        run: printf "%s" "${{ secrets.MY_ENV_FILE }}" > ./backend/.env
+      - 
 
       - name: Install Composer dependencies
         working-directory: ./backend
