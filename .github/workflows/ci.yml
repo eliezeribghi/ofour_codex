@@ -26,8 +26,15 @@ jobs:
           sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
           sudo chmod +x /usr/local/bin/docker-compose
 
-      - name:  Attendre que les services soient prêts
-        run: sleep 1000 
+      - name: Attendre que le conteneur backend soit prêt
+        run: |
+         echo "Vérification du démarrage du conteneur backend..."
+         while [ "$(docker ps --filter "name=backend_container" --filter "status=running" -q)" == "" ]; do
+         echo "Le conteneur backend n'est pas encore prêt, on attend..."
+         sleep 2
+         done
+         echo "Le conteneur backend est bien lancé !"
+
 
       - name: Tester le Frontend dans son conteneur
         run: |
