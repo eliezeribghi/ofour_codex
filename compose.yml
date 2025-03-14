@@ -7,7 +7,7 @@ services:
     container_name: frontend_container
     restart: always
     ports:
-      - "5173:5173"
+      - "80:80"
     
     networks:
       - front-network
@@ -125,10 +125,6 @@ services:
     depends_on:
       - prometheus
       - cadvisor
-
-
-
-
 
 volumes:
   db_data:
