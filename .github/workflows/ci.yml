@@ -16,7 +16,7 @@ jobs:
       - name: Installer Docker Compose
         run: |
          sudo apt-get update
-         sudo apt-get install -y docker-compose-plugin
+         sudo apt-get install -y docker-compose
 
       - name: Démarrer les conteneurs Docker
         run: docker-compose up -d
