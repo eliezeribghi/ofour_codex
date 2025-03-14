@@ -47,7 +47,7 @@ jobs:
         run: docker-compose up -d mysql
 
       - name:  Tester `php artisan serve` à l'intérieur du conteneur backend
-        run: docker exec  backend_container php artisan serve 
+        run: docker exec  backend_container  sh -c "php composer-setup.php --version=1.0.0-alpha8 && php artisan serve" 
 
 
       - name:  Arrêter Docker Compose après les tests
