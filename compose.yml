@@ -8,8 +8,7 @@ services:
     restart: always
     ports:
       - "5173:5173"
-    volumes:
-      - ./frontend:/app
+    
     networks:
       - front-network
     depends_on:
@@ -24,13 +23,7 @@ services:
       - "8000:8000"
     env_file:
       - path: ./backend/.env
-    environment:
-      - DB_CONNECTION=${DB_CONNECTION}
-      - DB_HOST=${DB_HOST}
-      - DB_PORT=${DB_PORT}
-      - DB_DATABASE=${DB_DATABASE}
-      - DB_USERNAME=${DB_USERNAME}
-      - DB_PASSWORD=${DB_PASSWORD}
+    
 
     command:  php artisan serve --host=0.0.0.0 --port=8000
     volumes:
@@ -38,22 +31,23 @@ services:
     networks:
       - db-network
       - front-network
+    
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
  
   adminer:
     image: adminer
     container_name: adminer
     restart: always
-    env_file:
-      - path : .env
+    
     ports:
-      - 8080:8080
+      - 8081:8081
     networks:
       - db-network
-    environment:
-      - ADMINER_DEFAULT_SERVER=${ADMINER_DEFAULT_SERVER}
-      - ADMINER_DESIGN=pepa-linha-dark
+    env_file:
+      - path: ./backend/.env
+  
     depends_on:
       - mysql
   mysql:
@@ -62,21 +56,82 @@ services:
     ports:
       - "3306:3306"
     env_file:
-      - path : .env
-    environment:
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-      - MYSQL_DATABASE=${DB_NAME}
-      - MYSQL_USER=${DB_USERNAME}
-      - MYSQL_PASSWORD=${DB_PASSWORD}
+      - path: ./backend/.env
+   
     volumes:
       - ./bdd/init.sql:/docker-entrypoint-initdb.d/init.sql
       - db_data:/var/lib/mysql
     networks:
       - db-network
+    healthcheck:
+        test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "${MYSQL_USER}", "-p${MYSQL_PASSWORD}"] # command to run
+        interval: 10s # Frequency every 10 seconds
+        timeout: 5s # if no response after 5s the test is considred failed 
+        retries: 5 # 5 retries before considering the test failed 
+        start_period: 30s
+
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090/tcp"
+   
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+ 
+    depends_on:
+      - cadvisor
+
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: cadvisor
+    ports:
+      - 8080:8080
+    
+    volumes:
+    - /:/rootfs:ro
+    - /var/run:/var/run:rw
+    - /sys:/sys:ro
+    - /var/lib/docker/:/var/lib/docker:ro
+    - /dev/zfs:/dev/zfs
+      
+    
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter
+    restart: unless-stopped
+    expose:
+      - 9100
+    
+    
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    user: "0"
+    ports:
+      - "3000:3000"
+    env_file:
+      - path: ./backend/.env
+    volumes:
+      - ./grafana-volume:/var/lib/grafana
+    
+    depends_on:
+      - prometheus
+      - cadvisor
+
+
+
+
 
 volumes:
   db_data:
 networks:
   db-network:
   front-network:
-  
