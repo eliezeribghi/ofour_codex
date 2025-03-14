@@ -16,7 +16,7 @@ COPY . .
 
 # Construire l'application
 RUN npm run build
-RUN ls -l /app/src
+
 
 EXPOSE 5173
 
@@ -46,3 +46,5 @@ CMD ["npm", "run", "dev"]
 
 # # Lancer Nginx
 # CMD ["nginx", "-g", "daemon off;"]
+
+

@@ -1,5 +1,8 @@
-/frontend/node_modules
-/frontend/dist
+frontend/node_modules
+frontend/dist   
+backend/.env
+.env
+grafana-volume/
 /public/hot
 /public/storage
 /storage/*.key
