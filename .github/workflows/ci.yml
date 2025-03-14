@@ -41,13 +41,13 @@ jobs:
 
       - name: Tester le Frontend dans son conteneur
         run: |
-          docker exec -it frontend_container sh -c "npm install && npm run dev & sleep 5"
+          docker exec  frontend_container sh -c "npm install && npm run dev & sleep 5"
 
       - name:  Démarrer MySQL
         run: docker-compose up -d mysql
 
       - name:  Tester `php artisan serve` à l'intérieur du conteneur backend
-        run: docker exec -it backend_container php artisan serve 
+        run: docker exec  backend_container php artisan serve 
 
 
       - name:  Arrêter Docker Compose après les tests
