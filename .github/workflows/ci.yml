@@ -26,27 +26,35 @@ jobs:
       #     sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
       #     sudo chmod +x /usr/local/bin/docker-compose
 
-      - name: Démarrer les services avec Docker Compose
-        run: docker-compose up -d
-      - 
-
       - name: Attendre que les conteneurs backend, frontend et MySQL soient prêts
         run: |
          echo "Vérification du démarrage des conteneurs..."
-           CONTAINERS=("backend_container" "frontend_container" "mysql_db")
 
-          for CONTAINER in "${CONTAINERS[@]}"; do
-          echo "Attente du démarrage de $CONTAINER..."
-          while [ -z "$(docker ps --filter "name=$CONTAINER" --filter "status=running" -q)" ]; do
+          # Liste des conteneurs à vérifier
+         CONTAINERS=("backend_container" "frontend_container" "mysql_db")
+
+         all_ready=false
+
+         while [ "$all_ready" = false ]; do
+         all_ready=true  # On suppose que tous sont prêts
+
+         for CONTAINER in "${CONTAINERS[@]}"; do
+         if [ -z "$(docker ps --filter "name=$CONTAINER" --filter "status=running" -q)" ]; then
           echo "$CONTAINER n'est pas encore prêt, on attend..."
-          sleep 2
-          done
-         echo "$CONTAINER est prêt !"
+          all_ready=false  # On met à faux si au moins un conteneur manque
+         fi
          done
+
+         sleep 2
+         done
+
+         echo "Tous les conteneurs sont prêts !"
+
+
 
 
       - name: Tester le Frontend dans son conteneur
-        use: shivammathur/setup-php@v2
+        uses: shivammathur/setup-php@v2
         run: |
           docker exec  frontend_container npm run dev & sleep 5
 
