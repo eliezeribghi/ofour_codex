@@ -64,9 +64,9 @@ jobs:
          sleep 2
          done
 
-echo "Le serveur est prêt !"
+          echo "Le serveur est prêt !"
 
-       - 
+       
       - name: Arrêter Docker Compose après les tests
         run: docker-compose down
  
