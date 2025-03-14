@@ -12,6 +12,7 @@ jobs:
     steps:
       - name: Cloner le dépôt
         uses: actions/checkout@v4
+
       - name: Installer Docker Compose
         run: |
          sudo apt-get update
@@ -45,7 +46,12 @@ jobs:
 
       - name: Tester le Frontend dans son conteneur
         run: |
-          docker exec frontend_container sh -c "npm install && npm run dev & sleep 5"
+          docker exec frontend_container sh -c npm run dev & sleep 5
+          
+      - name: Récupérer l'IP publique
+        run: |
+         IP=$(curl -s ifconfig.me)
+         echo "Adresse IP publique : $IP"
 
       - name: Tester `php artisan serve` à l'intérieur du conteneur backend
         run: |
@@ -53,7 +59,7 @@ jobs:
 
       - name: Arrêter Docker Compose après les tests
         run: docker-compose down
-
+ 
 
 
     # services:
