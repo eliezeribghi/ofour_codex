@@ -46,7 +46,7 @@ jobs:
 
 
       - name: Tester le Frontend dans son conteneur
-        uses: shivammathur/setup-php@v2
+        use: shivammathur/setup-php@v2
         run: |
           docker exec  frontend_container npm run dev & sleep 5
 
