@@ -13,8 +13,8 @@ jobs:
       - name: Cloner le dépôt
         uses: actions/checkout@v4
 
-      - name: lancement de docker 
-        run: docker-compose up
+      - name: Démarrer les conteneurs Docker
+        run: docker-compose up -d
 
       - name: Attendre que les conteneurs backend, frontend et MySQL soient prêts
         run: |
