@@ -1,5 +1,5 @@
 # Étape 1 : Construction du frontend
-FROM node:23-alpine 
+FROM node:23-alpine AS build
 
 # Définir le répertoire de travail
 WORKDIR /app
@@ -18,33 +18,22 @@ COPY . .
 RUN npm run build
 
 
-EXPOSE 5173
-
-CMD ["npm", "run", "dev"]
-# Étape 2 : Serveur Nginx pour servir les fichiers statiques
-#FROM nginx:alpine
-
-# Copier les fichiers générés par le build dans le dossier de Nginx
-#COPY --from=build /app/dist /usr/share/nginx/html/
-
-# Copier la configuration Nginx
-# COPY ../nginx/nginx.conf /etc/nginx/conf.d/default.conf
-
-# # Créer le dossier pour les certificats SSL et copier les fichiers
-# RUN mkdir -p /etc/nginx/ssl
-# COPY ../nginx/ssl/fullchain.pem /etc/nginx/ssl/fullchain.pem
-# COPY ../nginx/ssl/privkey.pem /etc/nginx/ssl/privkey.pem
 
 
+# Final stage for serving the app with NGINX
+FROM nginx:alpine
 
+# Copy built frontend files from the build stage to NGINX
+COPY --from=build /app/dist /usr/share/nginx/html
 
-# # Remplacer la variable ${PORT} par 80 si aucune valeur n'est définie
-# RUN sed -i 's/\${PORT}/80/g' /etc/nginx/conf.d/default.conf
+# Copy custom NGINX configuration (optional)
+COPY ./nginx/default.conf /etc/nginx/conf.d/default.conf
 
-# # Exposer les ports 80 et 443
-# EXPOSE 80 443
+# Expose HTTP port
+EXPOSE 80
 
-# # Lancer Nginx
-# CMD ["nginx", "-g", "daemon off;"]
+# Start NGINX
+CMD ["nginx", "-g", "daemon off;"]
+
 
 
