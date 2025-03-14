@@ -16,7 +16,7 @@ jobs:
       - name: Installer Docker Compose
         run: |
          sudo apt-get update
-         sudo apt-get install -y docker-compose
+         sudo apt-get install -y docker-compose-plugin
 
       - name: Démarrer les conteneurs Docker
         run: docker-compose up -d
@@ -46,7 +46,7 @@ jobs:
 
       - name: Tester le Frontend dans son conteneur
         run: |
-          docker exec frontend_container sh -c npm run dev & sleep 5
+          docker exec frontend_container  npm run dev & sleep 5
 
       
 
