@@ -47,16 +47,17 @@ jobs:
       - name: Tester le Frontend dans son conteneur
         run: |
           docker exec frontend_container sh -c npm run dev & sleep 5
-          
-      - name: Récupérer l'IP publique
-        run: |
-         IP=$(curl -s ifconfig.me)
-         echo "Adresse IP publique : $IP"
+
+      
 
       - name: Tester `php artisan serve` à l'intérieur du conteneur backend
         run: |
           docker exec backend_container php artisan serve & sleep 5
-
+      - name: Récupérer l'IP publique
+        run: |
+         result = (curl -X GET "http://127.0.0.1:5173/")
+         echo "resultat du curl: $result"
+         
       - name: Arrêter Docker Compose après les tests
         run: docker-compose down
  
