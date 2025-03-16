@@ -22,12 +22,10 @@ services:
     ports:
       - "8000:8000"
     env_file:
-      - path: ./backend/.env
+      - path: .env
     
 
-    command:  php artisan serve --host=0.0.0.0 --port=8000
-    volumes:
-      - ./backend:/app
+  
     networks:
       - db-network
       - front-network
@@ -46,7 +44,7 @@ services:
     networks:
       - db-network
     env_file:
-      - path: ./backend/.env
+      - path: .env
   
     depends_on:
       - mysql
@@ -56,7 +54,7 @@ services:
     ports:
       - "3306:3306"
     env_file:
-      - path: ./backend/.env
+      - path: .env
    
     volumes:
       - ./bdd/init.sql:/docker-entrypoint-initdb.d/init.sql
@@ -118,7 +116,7 @@ services:
     ports:
       - "3000:3000"
     env_file:
-      - path: ./backend/.env
+      - path: .env
     volumes:
       - ./grafana-volume:/var/lib/grafana
     
