@@ -56,7 +56,7 @@ jobs:
       - name: Récupérer l'IP publique
         run: |
          STATUS_CODE=0
-         STATUS_CODE=0
+        
 
 
           CONTAINER_NAME="frontend_container"
@@ -71,13 +71,7 @@ jobs:
            echo "Le serveur est prêt !"
       - name: Set up MySQL
         run: |
-             # Charger les variables d'environnement
-             set -o allexport
-             source ../../env || echo "Fichier .env introuvable"
-             set +o allexport
-         
-             # Démarrer MySQL
-             sudo systemctl start mysql || echo "MySQL ne s'est pas lancé correctement"
+          docker exec mysql_db sudo systemctl start mysql || echo "MySQL ne s'est pas lancé correctement"
          
              # Vérifier si MySQL fonctionne
              mysqladmin ping -u root --password=$DB_PASSWORD || echo "Impossible de se connecter à MySQL"
