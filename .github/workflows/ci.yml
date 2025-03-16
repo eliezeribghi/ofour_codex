@@ -2,10 +2,19 @@ name: check ofour
 run-name: ${{ github.actor }}
 
 on:
-  workflow_dispatch:  
+  workflow_dispatch:  # Déclenchement manuel via GitHub avec des inputs
+    inputs:
+      branch_name:
+        description: 'Nom de la branche à déployer'  # Description de l'input
+        required: true  # Cet input est obligatoire
+        default: 'main'  # Valeur par défaut si l'utilisateur ne fournit rien
+      environment:
+        description: 
+        required: true
+        default: 'staging'  # Valeur par défaut
   push:
-    branches: 
-      - github-actions 
+    branches:
+      - github-actions  # Déclenchement automatique lors d'un push sur la branche 'github-actions'
 
 jobs:
   build:
@@ -72,16 +81,7 @@ jobs:
            echo "Le serveur est prêt !"
       - name: Vérifier si MySQL est en cours d'exécution et exécuter la requête SQL
         run: |
-             # Vérifier si MySQL est en cours d'exécution
-             for i in {1..30}; do
-             if docker exec mysql_db mysqladmin ping -u root -p$MYSQL_ROOT_PASSWORD >/dev/null 2>&1; then
-               echo "MySQL n'est pas accessible, vérifiez les logs !"
-               docker logs mysql_db
-               exit 1
-             fi
-             echo "Waiting..."
-             sleep 2
-             done
+             
              
              # Exécuter une requête SQL et récupérer une recette
              RECETTE=$(docker exec mysql_db mysql -u"$MYSQL_ROOT_PASSWORD" -p"$DB_PASSWORD" -D"$DB_DATABASE" -e "SELECT * FROM recettes WHERE id = 1;" -s -N)
@@ -92,8 +92,6 @@ jobs:
              else
                echo "Recette récupérée : $RECETTE"
              fi
-         
-         
          
          
       - name: Arrêter Docker Compose après les tests
