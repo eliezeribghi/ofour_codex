@@ -2,10 +2,10 @@ name: check ofour
 run-name: ${{ github.actor }}
 
 on:
-  workflow_dispatch:
+  workflow_dispatch:  
   push:
     branches: 
-      - github-actions
+      - github-actions 
 
 jobs:
   build:
