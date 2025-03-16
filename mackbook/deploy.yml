@@ -31,7 +31,7 @@
 
     - name: Copier les fichiers du projet sur la machine distante
       copy:
-        src: /chemin/vers/ton/projet/
+        src: 
         dest: /var/www/mon_projet/
         owner: www-data
         group: www-data

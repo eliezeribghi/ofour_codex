@@ -53,6 +53,7 @@ jobs:
       
       - name: test
         run: | 
+               CONTAINER_NAME="frontend_container"
                IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $CONTAINER_NAME)
                 curl -s http://$IP:8000/api/recettes/1
 
@@ -74,6 +75,7 @@ jobs:
            done
 
            echo "Le serveur est prêt !"
+
       - name: Vérifier si MySQL est en cours d'exécution et exécuter la requête SQL
         run: |
              RECETTE=$(docker exec mysql_db mysql -u root -proot -D "ofour" -e "SELECT * FROM recettes WHERE id = 1;" -s -N)
