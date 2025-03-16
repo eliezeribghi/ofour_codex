@@ -73,7 +73,7 @@ jobs:
         run: |
              # Vérifier si MySQL est en cours d'exécution
              for i in {1..30}; do
-             if ! docker exec mysqladmin ping -h$DB_HOST -u$MYSQL_ROOT_PASSWORD -p$DB_PASSWORD; then
+             if docker exec mysql_db mysqladmin ping -u root -p$MYSQL_ROOT_PASSWORD >/dev/null 2>&1; then
                echo "MySQL n'est pas accessible, vérifiez les logs !"
                docker logs mysql_db
                exit 1
