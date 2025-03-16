@@ -69,13 +69,26 @@ jobs:
            done
 
            echo "Le serveur est prêt !"
-
-
-
-
-       
+      - name: Set up MySQL
+        run: |
+             # Charger les variables d'environnement
+             set -o allexport
+             source ../../env || echo "Fichier .env introuvable"
+             set +o allexport
+         
+             # Démarrer MySQL
+             sudo systemctl start mysql || echo "MySQL ne s'est pas lancé correctement"
+         
+             # Vérifier si MySQL fonctionne
+             mysqladmin ping -u root --password=$DB_PASSWORD || echo "Impossible de se connecter à MySQL"
+         
+             # Exécuter une requête SQL
+             RECETTE=$(mysql -u"$DB_USER" -p"$DB_PASSWORD" -D"$DB_DATABASE" -e "SELECT * FROM recettes WHERE id = 1;" -s -N)
+             echo "Recette récupérée : $RECETTE"
+         
       - name: Arrêter Docker Compose après les tests
         run: docker-compose down
+         
  
 
 
