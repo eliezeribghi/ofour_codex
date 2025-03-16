@@ -72,7 +72,7 @@ jobs:
       - name: Set up MySQL
         run: |
              # Démarrer MySQL dans le conteneur Docker
-             docker exec mysql_db sudo systemctl start mysql || echo "MySQL ne s'est pas lancé correctement"
+             docker exec mysql_db systemctl start mysql || echo "MySQL ne s'est pas lancé correctement"
          
              # Vérifier si MySQL est bien lancé
              docker exec mysql_db mysqladmin ping -u root --password="$DB_PASSWORD" || echo "Impossible de se connecter à MySQL"
