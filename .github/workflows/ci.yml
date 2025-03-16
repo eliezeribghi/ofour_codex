@@ -3,10 +3,9 @@ run-name: ${{ github.actor }}
 
 on:
   workflow_dispatch:
-
-  # push:
-  #   branches: 
-  #     - github-actions
+  push:
+    branches: 
+      - github-actions
 
 jobs:
   build:
