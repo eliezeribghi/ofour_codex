@@ -53,15 +53,21 @@ jobs:
 
       - name: Tester le Frontend dans son conteneur
         run: |
-            # Lancer le serveur frontend en arrière-plan
-            docker exec -d frontend_container npm run dev npm install node-fetch@2 --save
-             
+            # Vérifier si le conteneur frontend_container est en cours d'exécution
+            if ! docker ps --filter "name=frontend_container" --filter "status=running" | grep -q frontend_container; then
+              echo "Erreur : Le conteneur frontend_container n'est pas en cours d'exécution."
+              exit 1
+            fi
+        
+            # Lancer le serveur frontend avec npm run dev
             docker exec -d frontend_container npm run dev
-            
-            # Attendre quelques secondes pour s'assurer qu'il est prêt
+        
+            # Attendre que le serveur soit prêt (vous pouvez ajuster ce délai)
+            echo "Attente du démarrage du serveur..."
             sleep 10
         
-            # Tester la requête API avec Node.js
+            # Tester l'API backend avec Node.js
+            echo "Test de l'API backend..."
             node -e "
               const fetch = require('node-fetch');
               (async () => {
@@ -71,10 +77,10 @@ jobs:
                     const recettes = await response.json();
                     console.log('Test OK:', recettes);
                   } else {
-                    throw new Error('Échec: ' + response.status);
+                    throw new Error('Échec: ' + response.status + ' ' + response.statusText);
                   }
                 } catch (error) {
-                  console.error('Erreur API:', error);
+                  console.error('Erreur API:', error.message);
                   process.exit(1);
                 }
               })();
