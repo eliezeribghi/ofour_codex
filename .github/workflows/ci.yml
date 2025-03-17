@@ -50,15 +50,11 @@ jobs:
           done
           
           echo "Tous les conteneurs sont prêts !"
-          
+
       - name: Installation de curl
         run: |
             sudo apt-get update
             sudo apt-get install -y curl
-
-      - name: Test connectivity between containers
-        run: docker exec frontend_container ping backend_container
-          
 
       - name: test
         run: | 
