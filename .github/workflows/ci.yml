@@ -54,7 +54,9 @@ jobs:
       - name: test
         run: | 
                IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $CONTAINER_NAME)
-               curl -s http://$IP:8000/api/recettes/1
+                curl -s http://$IP:8000/api/recettes/1
+
+               
 
       - name: Tester `php artisan serve` à l'intérieur du conteneur backend
         run: |
