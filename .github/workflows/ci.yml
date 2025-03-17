@@ -50,23 +50,7 @@ jobs:
           done
 
           echo "Tous les conteneurs sont prêts !"
-      - name: Vérifier si le backend tourne bien
-        run: |
-            docker ps -a
-            docker logs backend_container
-      - name: Debug MySQL connection
-        run: |
-              docker-compose exec -T mysql_db mysql -uroot -proot -e "SHOW DATABASES;"
-      - name: Check backend logs
-        run: docker-compose logs backend_container
-      - name: Test network connectivity
-        run: |
-          docker-compose exec frontend_container ping -c 4 backend
-          docker-compose exec frontend_container ping -c 4 mysql_db
-      - name: Check Laravel API status
-        run: |
-            docker-compose exec backend_container php artisan route:list
-            docker-compose exec backend_container php artisan migrate:status
+      
       - name:
         run: |
              
