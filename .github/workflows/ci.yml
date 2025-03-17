@@ -51,47 +51,55 @@ jobs:
 
           echo "Tous les conteneurs sont prêts !"
 
-      - name: Tester le Frontend et Backend
+      - name: Vérifier et démarrer les conteneurs
         run: |
-            # 1. Vérifier les conteneurs
-            if ! docker ps --filter "name=frontend_container" | grep -q running; then
-              echo "Frontend non démarré"
-              exit 1
+            # 1. Vérification améliorée du conteneur
+            if ! docker inspect frontend_container --format '{{.State.Status}}' | grep -q running; then
+              echo "--> Démarrage du conteneur frontend..."
+              docker start frontend_container || {
+                echo "Échec du démarrage. Essayez de le recréer avec :";
+                echo "docker compose up -d --build frontend_container";
+                exit 1;
+              }
+              sleep 5  # Attendre l'initialisation
             fi
         
-            # 2. Vérifier le réseau
-            echo "Test de résolution DNS..."
-            docker exec frontend_container nslookup backend || exit 1
+            # 2. Vérification réseau renforcée
+            echo "--> Vérification du réseau..."
+            docker exec frontend_container sh -c "nslookup backend || (echo 'ERREUR: backend introuvable'; exit 1)"
         
-            # 3. Lancer le serveur frontend
+            # 3. Démarrage du serveur frontend
+            echo "--> Démarrage de npm run dev..."
             docker exec -d frontend_container npm run dev
         
-            # 4. Attente intelligente
-            echo "Attente du backend..."
-            timeout 30 bash -c 'while ! docker exec frontend_container curl -s http://backend:8000 >/dev/null; do sleep 1; done'
+            # 4. Attente active avec timeout
+            echo "--> Attente du backend (max 30s)..."
+            timeout 30 sh -c '
+              while ! docker exec frontend_container curl -s http://backend:8000 >/dev/null; do
+                echo "En attente du backend..."
+                sleep 2
+              done
+            ' || {
+              echo "TIMEOUT : Le backend ne répond pas";
+              docker logs frontend_container | tail -n 20;
+              exit 1;
+            }
         
-            # 5. Test avec gestion d'erreur détaillée
+            # 5. Test final avec gestion d'erreur
             node -e "
             (async () => {
               try {
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 5000);
-                
-                const response = await fetch('http://backend:8000/api/recettes/1', {
-                  signal: controller.signal
-                });
-                
-                clearTimeout(timeoutId);
-        
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                console.log('Succès:', await response.json());
-                
+                const response = await fetch('http://backend:8000/api/recettes/1', { timeout: 5000 });
+                console.log('SUCCÈS :', await response.json());
               } catch (error) {
-                console.error('Échec détaillé :', error.message);
+                console.error('ÉCHEC :', error.message);
+                console.log('Conseil : Vérifiez avec curl depuis le conteneur :');
+                console.log('  docker exec frontend_container curl -v http://backend:8000/api/recettes/1');
                 process.exit(1);
               }
             })();
             "
+        
       - name: Tester `php artisan serve` à l'intérieur du conteneur backend
         run: |
           docker exec backend_container php artisan serve & sleep 5
@@ -108,6 +116,7 @@ jobs:
            done
 
            echo "Le serveur est prêt !"
+
       - name: Vérifier si MySQL est en cours d'exécution et exécuter la requête SQL
         run: |
              RECETTE=$(docker exec mysql_db mysql -u root -proot -D "ofour" -e "SELECT * FROM recettes WHERE id = 1;" -s -N)
