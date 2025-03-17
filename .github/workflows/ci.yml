@@ -5,13 +5,12 @@ on:
   workflow_dispatch:  
     inputs:
       branch_name:
-        description: 'Nom de la branche à déployer'  
+        description: 'Workflow test'  
         required: true  
-        default: 'main'  
-      environment:
-        description: 
-        required: true
-        default: 'staging'  
+        default: 'sonarqube'
+      tags:
+        description: 'Test'
+
   push:
     branches:
       - github-actions  
@@ -44,7 +43,7 @@ jobs:
             # Adds more detail to both client and server-side analysis logs, activating DEBUG mode for the scanner, and adding client-side environment variables and system properties to the server-side log of analysis report processing.
             #-Dsonar.verbose= # optional, default is false
 
-  Build:
+  build-container:
     needs: analysis
     runs-on: ubuntu-latest
     steps:
