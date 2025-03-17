@@ -75,7 +75,7 @@ jobs:
             # 4. Attente active avec timeout
             echo "--> Attente du backend (max 30s)..."
             timeout 30 sh -c '
-              while ! docker exec frontend_container curl -s http://backend:8000 >/dev/null; do
+              while ! docker exec frontend_container curl -s http://localhost:8000 >/dev/null; do
                 echo "En attente du backend..."
                 sleep 2
               done
