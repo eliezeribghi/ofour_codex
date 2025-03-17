@@ -51,15 +51,9 @@ jobs:
 
           echo "Tous les conteneurs sont prêts !"
       
-      - name:
-        run: |
-             
-  
-              # 3. Test de l'API
-               docker-compose exec frontend_container curl -s http://backend:8000/api/recettes/1
-          
-            
-            
+      - name: test
+        run: | 
+              curl -s http://backend:8000/api/recettes/1
 
       - name: Tester `php artisan serve` à l'intérieur du conteneur backend
         run: |
