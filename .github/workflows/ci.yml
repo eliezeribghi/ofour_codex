@@ -17,7 +17,7 @@ on:
       - github-actions  
 
 jobs:
-  Analysis:
+  analysis:
     runs-on: ubuntu-latest
     steps:
       - name: Analyze with SonarQube
@@ -45,6 +45,7 @@ jobs:
             #-Dsonar.verbose= # optional, default is false
 
   Build:
+    needs: analysis
     runs-on: ubuntu-latest
     steps:
       - name: Cloner le dépôt
