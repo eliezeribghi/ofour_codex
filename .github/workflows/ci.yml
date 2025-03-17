@@ -58,7 +58,8 @@ jobs:
 
       - name: test
         run: | 
-              curl http://localhost:8000/api/recettes/1
+              curl http://127.0.0.1:8000/api/recettes/1
+
 
       - name: Tester `php artisan serve` à l'intérieur du conteneur backend
         run: |
