@@ -4,7 +4,13 @@
 /public/storage
 /storage/*.key
 /backend/vendor
-
+/terraform/key.json
+terraform/*.tfstate
+terraform/*.tfstate.backup
+terraform/.terraform/
+terraform/*.log
+terraform/terraform_debug.log
+terraform/*.tfvars
 .env.backup
 .phpunit.result.cache
 docker-compose.override.yml
@@ -14,3 +20,5 @@ npm-debug.log
 yarn-error.log
 /.idea
 /.vscode
+ssh_codex
+

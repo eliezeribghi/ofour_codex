@@ -46,7 +46,7 @@ services:
     container_name: adminer
     restart: always
     env_file:
-      - path : .env
+      - path : ./backend/.env
     ports:
       - 8080:8080
     networks:
@@ -62,7 +62,7 @@ services:
     ports:
       - "3306:3306"
     env_file:
-      - path : .env
+      - path : ./backend.env
     environment:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
       - MYSQL_DATABASE=${DB_NAME}

@@ -1,8 +1,9 @@
 provider "google" {
-  project     = "ofour-452518"
+  project     = var.name_project
   credentials = file("key.json")
   region      = "us-central1"
   zone        = "us-central1-a"
+  impersonate_service_account = var.service_account_email 
 }
 resource "google_compute_address" "default" {
   name   = "ofour-static-ip"
@@ -10,27 +11,55 @@ resource "google_compute_address" "default" {
 }
 resource "google_project_service" "enable_resource_manager" {
   service = "cloudresourcemanager.googleapis.com"
-  project = "59248914206"
-}
-resource "google_project_iam_custom_role" "custom_iam_role" {
-  role_id     = "customIamRole"
-  title       = "Custom IAM Role"
-  description = "A custom role with specific IAM permissions"
-  permissions = [
-    "iam.roles.list",
-    "iam.roles.create",
-    "iam.roles.delete",
-    "resourcemanager.projects.getIamPolicy",
-    "resourcemanager.projects.setIamPolicy"
-  ]
+  project = var.id_project
 }
 
+
 resource "google_project_iam_binding" "project" {
-  project = "ofour-452518"
+  project = var.name_project
   role    = "roles/iam.roleAdmin"
   members = [
-    "serviceAccount:ofour-409@ofour-452518.iam.gserviceaccount.com",
+   "serviceAccount:${var.service_account_email}",
   ]
+}
+resource "google_project_service" "compute_engine" {
+  service            = "compute.googleapis.com"
+  disable_on_destroy = false
+}
+resource "google_project_service" "iam" {
+  service            = "iam.googleapis.com"
+  disable_on_destroy = false
+}
+ resource "google_project_service" "sqladmin" {
+  service            = "sqladmin.googleapis.com"
+  disable_on_destroy = false
+}
+# Attribuer le rôle IAM Admin
+resource "google_project_iam_member" "terraform_iam_admin" {
+  project = var.id_project
+  role    = "roles/resourcemanager.projectIamAdmin"
+  member  = "serviceAccount:${var.service_account_email}"
+}
+
+resource "google_project_iam_member" "cloudsql_admin" {
+  project = var.id_project
+  role    = "roles/cloudsql.admin"
+  member  = "serviceAccount:${var.service_account_email}"
+}
+
+
+# Attribuer le rôle pour créer des rôles personnalisés
+resource "google_project_iam_member" "terraform_role_admin" {
+  project = var.id_project
+  role    = "roles/iam.roleAdmin"
+  member  = "serviceAccount:${var.service_account_email}"
+}
+
+# Attribuer le rôle Cloud SQL Admin
+resource "google_project_iam_member" "terraform_cloudsql_admin" {
+  project = var.id_project
+  role    = "roles/cloudsql.admin"
+  member  = "serviceAccount:${var.service_account_email}"
 }
 
 
@@ -129,10 +158,10 @@ resource "google_storage_bucket" "static" {
 }
 
 resource "google_storage_bucket_object" "stats_file" {
-  name         = "stats"                           # Nom du fichier à stocker dans le bucket
-  bucket       = google_storage_bucket.static.name # Utilisation du bucket dynamique généré
-  source       = "terraform.tfstate"             # Chemin du fichier local à uploader
-  content_type = "application/json"                # Type du fichier (adapter si nécessaire)
+  name         = "stats"                           
+  bucket       = google_storage_bucket.static.name 
+  source       = "terraform.tfstate"             
+  content_type = "application/json"              
 
 }
 resource "google_storage_bucket_object" "sql_file" {
@@ -142,7 +171,7 @@ resource "google_storage_bucket_object" "sql_file" {
 }
 
 resource "google_project_iam_member" "sql_client" {
-  project = "ofour-452518"
+  project = "ofour-codes"
   role    = "roles/cloudsql.client"
   member  = "serviceAccount:${google_sql_database_instance.mysql-instance.service_account_email_address}"
 }
@@ -196,11 +225,7 @@ resource "google_sql_database_instance" "mysql-instance" {
         name  = "nour"
         value = "94.239.80.68"
       }
-     
-      authorized_networks {
-        name  = "nour_kourou"
-        value = "13.39.86.121"
-      }
+
       authorized_networks {
         name  = "eliezer_kourou"
         value = "35.180.198.214"
@@ -231,31 +256,31 @@ resource "google_sql_database_instance" "mysql-instance" {
 
 resource "null_resource" "import_sql" {
   depends_on = [
-    google_sql_database_instance.mysql-instance,
+    google_sql_database.ofour,
     google_storage_bucket_object.sql_file,
-    google_sql_database.ofour
+    google_storage_bucket_iam_member.sql_storage_object_viewer
   ]
 
   triggers = {
     sql_content_hash = filebase64sha256("../bdd/init.sql")
   }
 
-  provisioner "local-exec" {
-    command = <<EOT
-      echo "Authenticating with gcloud..."
-      gcloud auth activate-service-account ${google_sql_database_instance.mysql-instance.service_account_email_address} --key-file=key.json
-      echo "Authentication successful."
-
-      echo "Importing SQL file..."
-      gcloud sql import sql ${google_sql_database_instance.mysql-instance.name} gs://${google_storage_bucket.static.name}/${google_storage_bucket_object.sql_file.name} --database=ofour
-      echo "SQL file imported."
-
-      echo "Verifying import..."
-      gcloud sql connect ${google_sql_database_instance.mysql-instance.name} --user=root --password=${var.db_password} --quiet --command="USE ofour; SHOW TABLES;"
-      echo "Verification complete."
-    EOT
-  }
+provisioner "local-exec" {
+  command = <<-EOT
+    gcloud auth activate-service-account --key-file=key.json
+    gcloud config set project ofour-codes
+    
+    set -e
+    echo "Lancement de l'import depuis gs://4e1c90357fc60990-new-bucket/sql"
+    gcloud sql import sql mysql-instance \
+      gs://4e1c90357fc60990-new-bucket/sql \
+      --database=ofour \
+      --quiet
+  EOT
 }
+
+}
+
 
 
 
@@ -270,6 +295,5 @@ resource "google_sql_user" "root" {
   instance = google_sql_database_instance.mysql-instance.name
   password_wo = var.db_password
 }
-
 
 
