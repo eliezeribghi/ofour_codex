@@ -51,54 +51,41 @@ jobs:
 
           echo "Tous les conteneurs sont prêts !"
 
-      - name: Vérifier et démarrer les conteneurs
+      - name: Tester l'environnement local
         run: |
-            # 1. Vérification améliorée du conteneur
-            if ! docker inspect frontend_container --format '{{.State.Status}}' | grep -q running; then
-              echo "--> Démarrage du conteneur frontend..."
-              docker start frontend_container || {
-                echo "Échec du démarrage. Essayez de le recréer avec :";
-                echo "docker compose up -d --build frontend_container";
-                exit 1;
-              }
-              sleep 5  # Attendre l'initialisation
+            # 1. Vérifier que le conteneur expose bien le port
+            if ! docker port frontend_container | grep -q '8000'; then
+              echo "ERREUR : Le port 8000 n'est pas exposé"
+              docker ps --filter "name=frontend_container" --format "table {{.Names}}\t{{.Ports}}"
+              exit 1
             fi
         
-            # 2. Vérification réseau renforcée
-            echo "--> Vérification du réseau..."
-            docker exec frontend_container sh -c "nslookup backend || (echo 'ERREUR: backend introuvable'; exit 1)"
+            # 2. Récupérer l'IP locale de l'hôte
+            HOST_IP=$(docker run --rm alpine getent hosts host.docker.internal | awk '{ print $1 }')
+            echo "IP de l'hôte depuis Docker : $HOST_IP"
         
-            # 3. Démarrage du serveur frontend
-            echo "--> Démarrage de npm run dev..."
-            docker exec -d frontend_container npm run dev
-        
-            # 4. Attente active avec timeout
-            echo "--> Attente du backend (max 30s)..."
-            timeout 30 sh -c '
-              while ! docker exec frontend_container curl -s http://localhost:8000 >/dev/null; do
-                echo "En attente du backend..."
-                sleep 2
-              done
-            ' || {
-              echo "TIMEOUT : Le backend ne répond pas";
-              docker logs frontend_container | tail -n 20;
-              exit 1;
-            }
-        
-            # 5. Test final avec gestion d'erreur
+            # 3. Version adaptée pour localhost
             node -e "
             (async () => {
               try {
-                const response = await fetch('http://localhost:8000/api/recettes/1', { timeout: 5000 });
-                console.log('SUCCÈS :', await response.json());
+                // Utiliser l'IP spéciale pour accéder à l'hôte
+                const response = await fetch('http://${HOST_IP}:8000/api/recettes/1', {
+                  headers: { 'Host': 'localhost' }  // Important pour les configurations de serveur
+                });
+                
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                console.log('Résultat :', await response.json());
+                
               } catch (error) {
-                console.error('ÉCHEC :', error.message);
-                console.log('Conseil : Vérifiez avec curl depuis le conteneur :');
-                console.log('  docker exec frontend_container curl -v http://localhost:8000/api/recettes/1');
+                console.error('Échec critique :', error.message);
+                console.log('Conseils de débogage :');
+                console.log('1. Vérifiez que le backend tourne SUR VOTRE MACHINE : curl http://localhost:8000/api/recettes/1');
+                console.log('2. Testez la connexion depuis Docker : docker run --rm curlimages/curl curl -sv http://$HOST_IP:8000');
                 process.exit(1);
               }
             })();
             "
+        
         
       - name: Tester `php artisan serve` à l'intérieur du conteneur backend
         run: |
