@@ -54,7 +54,9 @@ jobs:
       - name: Tester le Frontend dans son conteneur
         run: |
             # Lancer le serveur frontend en arrière-plan
-            docker exec -d frontend_container npm run dev npm install node-fetch@2
+            docker exec -d frontend_container npm run dev npm install node-fetch@2 --save
+             
+            docker exec -d frontend_container npm run dev
             
             # Attendre quelques secondes pour s'assurer qu'il est prêt
             sleep 10
