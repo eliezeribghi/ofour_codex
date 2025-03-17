@@ -54,7 +54,7 @@ jobs:
       - name: Tester le Frontend dans son conteneur
         run: |
             # Lancer le serveur frontend en arrière-plan
-            docker exec -d frontend_container npm run dev
+            docker exec -d frontend_container npm run dev npm install node-fetch@2
             
             # Attendre quelques secondes pour s'assurer qu'il est prêt
             sleep 10
@@ -64,7 +64,7 @@ jobs:
               const fetch = require('node-fetch');
               (async () => {
                 try {
-                  const response = await fetch('http://localhost:8000/api/recettes/1');
+                  const response = await fetch('http://backend:8000/api/recettes/1');
                   if (response.ok) {
                     const recettes = await response.json();
                     console.log('Test OK:', recettes);
