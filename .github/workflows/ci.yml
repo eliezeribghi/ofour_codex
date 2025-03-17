@@ -94,7 +94,7 @@ jobs:
               } catch (error) {
                 console.error('ÉCHEC :', error.message);
                 console.log('Conseil : Vérifiez avec curl depuis le conteneur :');
-                console.log('  docker exec frontend_container curl -v http://backend:8000/api/recettes/1');
+                console.log('  docker exec frontend_container curl -v http://localhost:8000/api/recettes/1');
                 process.exit(1);
               }
             })();
