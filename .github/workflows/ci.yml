@@ -63,7 +63,7 @@ jobs:
       - name: Tester les autorisations et l'API
         run: |
                 # 1. Connexion MySQL en root et configuration des privilèges
-                docker-compose exec -T mysql_db mysql -uroot -p$MYSQL_ROOT_PASSWORD -e "
+                docker-compose exec -T mysql_db mysql -uroot -proot -e "
                   CREATE USER IF NOT EXISTS 'user_db'@'%' IDENTIFIED BY '$MYSQL_PASSWORD';
                   GRANT ALL PRIVILEGES ON ofour.* TO 'user_db'@'%';
                   FLUSH PRIVILEGES;"
