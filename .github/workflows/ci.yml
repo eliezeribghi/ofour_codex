@@ -1,124 +1,73 @@
-name: check ofour
-run-name: ${{ github.actor }}
+name: CI/CD Pipeline
 
 on:
-  workflow_dispatch:  # Déclenchement manuel via GitHub avec des inputs
+  workflow_dispatch:
     inputs:
       version:
-        description: 'Nom de la branche à déployer'  # Description de l'input
-        required: true  # Cet input est obligatoire
-        default: 'latest'  # Valeur par défaut si l'utilisateur ne fournit rien
-      
+        description: 'Nom de la branche à déployer'
+        required: true
+        default: 'latest'
   push:
     branches:
-      - github-actions  # Déclenchement automatique lors d'un push sur la branche 'github-actions'
+      - github-actions
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
     steps:
-      - name: Cloner le dépôt
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Installer Docker Compose
+      - name: Set up Docker Compose
         run: |
-         sudo apt-get update
-         sudo apt-get install -y docker-compose
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
 
-      - name: Démarrer les conteneurs Docker
+      - name: Start Docker containers
         run: docker-compose up -d
 
-      - name: Attendre que les conteneurs backend, frontend et MySQL soient prêts
+      - name: Wait for containers to be ready
         run: |
-          echo "Vérification du démarrage des conteneurs..."
-          
+          echo "Checking container readiness..."
           CONTAINERS=("backend_container" "frontend_container" "mysql_db")
-
-          all_ready=false
-
-          while [ "$all_ready" = false ]; do
-            all_ready=true  # On suppose que tous sont prêts
-
-            for CONTAINER in "${CONTAINERS[@]}"; do
-              if [ -z "$(docker ps --filter "name=$CONTAINER" --filter "status=running" -q)" ]; then
-                echo "$CONTAINER n'est pas encore prêt, on attend..."
-                all_ready=false  # Au moins un conteneur n'est pas prêt
-              fi
+          for CONTAINER in "${CONTAINERS[@]}"; do
+            while [ -z "$(docker ps --filter "name=$CONTAINER" --filter "status=running" -q)" ]; do
+              echo "Waiting for $CONTAINER..."
+              sleep 5
             done
-
-            sleep 2
           done
+          echo "All containers are ready!"
 
-          echo "Tous les conteneurs sont prêts !"
-
-      - name: Tester l'environnement local
+      - name: Verify backend accessibility
         run: |
-            # 1. Vérifier que le conteneur expose bien le port
-            if ! docker port frontend_container | grep -q '8000'; then
-              echo "ERREUR : Le port 8000 n'est pas exposé"
-              docker ps --filter "name=frontend_container" --format "table {{.Names}}\t{{.Ports}}"
-              exit 1
-            fi
-        
-            # 2. Récupérer l'IP locale de l'hôte
-            HOST_IP=$(docker run --rm alpine getent hosts host.docker.internal | awk '{ print $1 }')
-            echo "IP de l'hôte depuis Docker : $HOST_IP"
-        
-            # 3. Version adaptée pour backend
-            node -e "
-            (async () => {
-              try {
-                // Utiliser l'IP spéciale pour accéder à l'hôte
-                const response = await fetch('http://${HOST_IP}:8000/api/recettes/1', {
-                  headers: { 'Host': 'backend' }  // Important pour les configurations de serveur
-                });
-                
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                console.log('Résultat :', await response.json());
-                
-              } catch (error) {
-                console.error('Échec critique :', error.message);
-                console.log('Conseils de débogage :');
-                console.log('1. Vérifiez que le backend tourne SUR VOTRE MACHINE : curl http://backend:8000/api/recettes/1');
-                console.log('2. Testez la connexion depuis Docker : docker run --rm curlimages/curl curl -sv http://$HOST_IP:8000');
-                process.exit(1);
-              }
-            })();
-            "
-        
-        
-      - name: Tester `php artisan serve` à l'intérieur du conteneur backend
-        run: |
-          docker exec backend_container php artisan serve & sleep 5
-      - name: Récupérer l'IP publique
-        run: |
-         STATUS_CODE=0
-          CONTAINER_NAME="frontend_container"
-          IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $CONTAINER_NAME)
+          BACKEND_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' backend_container)
+          echo "Backend IP: $BACKEND_IP"
+          timeout 30s bash -c 'while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' http://$BACKEND_IP:8000)" != "200" ]]; do sleep 5; done' || (echo "Backend not responding" && exit 1)
 
-           while [ "$STATUS_CODE" -ne 200 ]; do
-            STATUS_CODE=$(curl -L -o /dev/null -s -w "%{http_code}" http://$IP:5173/)
-             echo "En attente du serveur... (Status: $STATUS_CODE)"
-             sleep 2
-           done
-
-           echo "Le serveur est prêt !"
-
-      - name: Vérifier si MySQL est en cours d'exécution et exécuter la requête SQL
+      - name: Test API endpoint
         run: |
-             RECETTE=$(docker exec mysql_db mysql -u root -proot -D "ofour" -e "SELECT * FROM recettes WHERE id = 1;" -s -N)
-             
-             if [ -z "$RECETTE" ]; then
-               echo "Aucune recette trouvée avec cet ID."
-             else
-               echo "Recette récupérée :"
-               echo "$RECETTE" | while read -r ligne; do
-                 echo "$ligne"
-               done
-             fi
-         
-      - name: Arrêter Docker Compose après les tests
+          BACKEND_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' backend_container)
+          response=$(curl -s http://$BACKEND_IP:8000/api/recettes/1)
+          echo "API Response: $response"
+          if [[ $response == *"error"* ]]; then
+            echo "API request failed"
+            exit 1
+          fi
+
+      - name: Check MySQL and execute query
+        run: |
+          MYSQL_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' mysql_db)
+          docker exec mysql_db mysql -h$MYSQL_IP -uroot -proot -e "USE ofour; SELECT * FROM recettes WHERE id = 1;" || (echo "MySQL query failed" && exit 1)
+
+      - name: Verify frontend
+        run: |
+          FRONTEND_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' frontend_container)
+          timeout 30s bash -c 'while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' http://$FRONTEND_IP:5173)" != "200" ]]; do sleep 5; done' || (echo "Frontend not responding" && exit 1)
+
+      - name: Stop Docker Compose
         run: docker-compose down
+
+
          
          
  

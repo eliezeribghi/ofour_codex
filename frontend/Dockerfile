@@ -13,6 +13,7 @@ RUN npm install
 # Copier le code source du frontend
 COPY . .
 
+RUN apk add --no-cache curl
 
 # Construire l'application
 RUN npm run build
