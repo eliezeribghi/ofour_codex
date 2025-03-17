@@ -1,132 +1,126 @@
-name: CI
+name: check ofour
+run-name: ${{ github.actor }}
 
 on:
+  workflow_dispatch:  
+    inputs:
+      branch_name:
+        description: 'Nom de la branche à déployer'  
+        required: true  
+        default: 'main'  
+      environment:
+        description: 
+        required: true
+        default: 'staging'  
   push:
-  pull_request:
+    branches:
+      - github-actions  
+
+jobs:
+  Analysis:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Analyze with SonarQube
+
+        # You can pin the exact commit or the version.
+        # uses: SonarSource/sonarqube-scan-action@v1.1.0
+        uses: SonarSource/sonarqube-scan-action@7295e71c9583053f5bf40e9d4068a0c974603ec8
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN_USER}}  # Needed to get PR information
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}   # Generate a token on SonarQube, add it to the secrets of this repo with the name SONAR_TOKEN (Settings > Secrets > Actions > add new repository secret)
+          SONAR_HOST_URL: localhost   # add the URL of your instance to the secrets of this repo with the name SONAR_HOST_URL (Settings > Secrets > Actions > add new repository secret)
+        with:
+          # Additional arguments for the sonarcloud scanner
+          args:
+            # Unique key of your project. You can find it in SonarQube > [my project] > Project Information (top-right menu)
+            # mandatory
+            -Dsonar.projectKey=${{ vars.PROJECT_KEY }}
+            # Comma-separated paths to directories containing main source files.
+            #-Dsonar.sources= # optional, default is project base directory
+            # When you need the analysis to take place in a directory other than the one from which it was launched
+            #-Dsonar.projectBaseDir= # optional, default is .
+            # Comma-separated paths to directories containing test source files.
+            #-Dsonar.tests= # optional. For more info about Code Coverage, please refer to https://docs.sonarcloud.io/enriching/test-coverage/overview/
+            # Adds more detail to both client and server-side analysis logs, activating DEBUG mode for the scanner, and adding client-side environment variables and system properties to the server-side log of analysis report processing.
+            #-Dsonar.verbose= # optional, default is false
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
-    services:
-      mysql:
-        image: mysql:5.7
-        env:
-          MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: ofour
-        ports:
-          - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - name: Cloner le dépôt
+        uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: "16"
-          registry-url: "https://registry.npmjs.org"
-
-      - name: Check if Docker is installed
-        run: docker --version
-
-      - name: Install Docker Compose (if needed)
+      - name: Installer Docker Compose
         run: |
-          if ! [ -x "$(command -v docker-compose)" ]; then
-            sudo curl -L "https://github.com/docker/compose/releases/download/v2.3.3/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-            sudo chmod +x /usr/local/bin/docker-compose
-          fi
-          docker-compose --version
+         sudo apt-get update
+         sudo apt-get install -y docker-compose
 
-      - name: Stop system MySQL (if running)
-        run: sudo systemctl stop mysql || true
+      - name: Démarrer les conteneurs Docker
+        run: docker-compose up -d
 
-      - name: Start MySQL container
+      - name: Attendre que les conteneurs backend, frontend et MySQL soient prêts
         run: |
-          docker run --name my-mysql -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=ofour -p 3307:3306 -d mysql:5.7
+          echo "Vérification du démarrage des conteneurs..."
+          
+          CONTAINERS=("backend_container" "frontend_container" "mysql_db")
 
-      - name: Wait for MySQL
-        run: |
-          for i in {1..30}; do
-            if mysql -h 127.0.0.1 -u root -proot -e "SELECT 1;" &> /dev/null; then
-              echo "MySQL is ready!"
-              exit 0
-            fi
-            echo "Waiting for MySQL..."
-            sleep 5
+          all_ready=false
+
+          while [ "$all_ready" = false ]; do
+            all_ready=true  # On suppose que tous sont prêts
+
+            for CONTAINER in "${CONTAINERS[@]}"; do
+              if [ -z "$(docker ps --filter "name=$CONTAINER" --filter "status=running" -q)" ]; then
+                echo "$CONTAINER n'est pas encore prêt, on attend..."
+                all_ready=false  # Au moins un conteneur n'est pas prêt
+              fi
+            done
+
+            sleep 2
           done
-          echo "MySQL did not start in time." >&2
-          exit 1
 
-      - name: Set up PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.2'
-          extensions: mbstring, xml, bcmath, curl, zip
+          echo "Tous les conteneurs sont prêts !"
 
-      - name: Copy .env file
-        run: printf "%s" "${{ secrets.MY_ENV_FILE }}" > ./backend/.env
-
-      - name: Install Composer dependencies
-        working-directory: ./backend
-        run: composer install --prefer-dist --no-progress --no-suggest --no-interaction
-
-      - name: Set Laravel .env DB_HOST
-        run: echo "DB_HOST=127.0.0.1" >> ./backend/.env
-
-      - name: Generate APP_KEY
-        working-directory: ./backend
-        run: php artisan key:generate
-
-      - name: Run database migrations
-        working-directory: ./backend
-        run: php artisan migrate --force
-
-      - name: Run tests
-        working-directory: ./backend
-        run: php artisan test
-
-  sonarqube:
-    runs-on: ubuntu-latest
-    needs: build
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Install SonarScanner
+      - name: Tester le Frontend dans son conteneur
         run: |
-          curl -Lo sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
-          unzip sonar-scanner.zip
-          echo "$PWD/sonar-scanner-5.0.1.3006-linux/bin" >> $GITHUB_PATH
+          docker exec frontend_container  npm run dev & sleep 5
 
-      - name: Start SonarQube
-        run: |
-          docker run -d --name sonar \
-          -p 9003:9000 \
-          -e SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true \
-          sonarqube:lts
-          sleep 30
+      
 
-      - name: Wait for SonarQube
+      - name: Tester `php artisan serve` à l'intérieur du conteneur backend
         run: |
-          until curl -s http://localhost:9003/api/system/status | grep -q "OK"; do
-            echo "Waiting for SonarQube..."
-            sleep 5
-          done
-          echo "SonarQube is ready!"
+          docker exec backend_container php artisan serve & sleep 5
+      - name: Récupérer l'IP publique
+        run: |
+         STATUS_CODE=0
+        
 
-      - name: Run SonarScanner (Backend)
-        working-directory: ./backend
-        run: |
-          sonar-scanner \
-            -Dsonar.host.url="http://localhost:9003" \
-            -Dsonar.login="${{ secrets.SONAR_TOKEN }}"
 
-      - name: Run SonarScanner (Frontend)
-        working-directory: ./frontend
+          CONTAINER_NAME="frontend_container"
+          IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $CONTAINER_NAME)
+
+           while [ "$STATUS_CODE" -ne 200 ]; do
+            STATUS_CODE=$(curl -L -o /dev/null -s -w "%{http_code}" http://$IP:5173/)
+             echo "En attente du serveur... (Status: $STATUS_CODE)"
+             sleep 2
+           done
+
+           echo "Le serveur est prêt !"
+      - name: Vérifier si MySQL est en cours d'exécution et exécuter la requête SQL
         run: |
-          sonar-scanner \
-            -Dsonar.host.url="http://localhost:9003" \
-            -Dsonar.login="${{ secrets.SONAR_TOKEN }}"
+             
+             
+             # Exécuter une requête SQL et récupérer une recette
+             RECETTE=$(docker exec mysql_db mysql -u root -proot -D "ofour" -e "SELECT * FROM recettes WHERE id = 1;" -s -N)
+             
+             # Vérifier si la requête a renvoyé un résultat
+             if [ -z "$RECETTE" ]; then
+               echo "Aucune recette trouvée avec cet ID."
+             else
+               echo "Recette récupérée : $RECETTE"
+             fi
+         
+         
+      - name: Arrêter Docker Compose après les tests
+        run: docker-compose down
