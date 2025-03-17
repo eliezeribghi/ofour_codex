@@ -60,11 +60,23 @@ jobs:
               echo "::add-mask::$TOKEN"
               echo "Token récupéré: $TOKEN"
           
-      - name: Tester le Frontend dans son conteneur
+      - name: Tester les autorisations et l'API
         run: |
-            # Lancer le serveur frontend en arrière-plan
-            docker exec frontend_container curl -X GET -H "Authorization: Bearer TON_TOKEN" http://backend:8000/api/recettes/1
-            echo "Authorization: Bearer TON_TOKEN"
+                # 1. Connexion MySQL en root et configuration des privilèges
+                docker-compose exec -T mysql_db mysql -uroot -p$MYSQL_ROOT_PASSWORD -e "
+                  CREATE USER IF NOT EXISTS 'user_db'@'%' IDENTIFIED BY '$MYSQL_PASSWORD';
+                  GRANT ALL PRIVILEGES ON ofour.* TO 'user_db'@'%';
+                  FLUSH PRIVILEGES;"
+                
+                # 2. Installation de curl dans le frontend si nécessaire
+                docker-compose exec frontend_container apk add --no-cache curl
+            
+                # 3. Génération du token JWT (adaptez selon votre auth)
+                TOKEN=$(docker-compose exec -T backend_container php artisan tinker --execute="echo auth()->user()->createToken('test-token')->plainTextToken;")
+            
+                # 4. Test de l'API avec authentification
+                docker-compose exec frontend_container sh -c "curl -s -H 'Authorization: Bearer $TOKEN' http://backend:8000/api/recettes/1"
+            
 
 
       - name: Tester `php artisan serve` à l'intérieur du conteneur backend
