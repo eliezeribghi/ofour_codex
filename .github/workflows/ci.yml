@@ -56,12 +56,24 @@ jobs:
             sudo apt-get install -y curl
       - name: Test connectivity between containers
         run: docker exec frontend_container ping backend_container
-          
+        
+      - name: Vérifier si MySQL est en cours d'exécution et exécuter la requête SQL
+        run: |
+             RECETTE=$(docker exec mysql_db mysql -u root -proot -D "ofour" -e "SELECT * FROM recettes WHERE id = 1;" -s -N)
+             
+             if [ -z "$RECETTE" ]; then
+               echo "Aucune recette trouvée avec cet ID."
+             else
+               echo "Recette récupérée :"
+               echo "$RECETTE" | while read -r ligne; do
+                 echo "$ligne"
+               done
+             fi  
 
       - name: test
         run: | 
               curl http://127.0.0.1:8000/api/recettes/1
-
+     
 
       - name: Tester `php artisan serve` à l'intérieur du conteneur backend
         run: |
@@ -81,18 +93,7 @@ jobs:
 
            echo "Le serveur est prêt !"
 
-      - name: Vérifier si MySQL est en cours d'exécution et exécuter la requête SQL
-        run: |
-             RECETTE=$(docker exec mysql_db mysql -u root -proot -D "ofour" -e "SELECT * FROM recettes WHERE id = 1;" -s -N)
-             
-             if [ -z "$RECETTE" ]; then
-               echo "Aucune recette trouvée avec cet ID."
-             else
-               echo "Recette récupérée :"
-               echo "$RECETTE" | while read -r ligne; do
-                 echo "$ligne"
-               done
-             fi
+      
          
       - name: Arrêter Docker Compose après les tests
         run: docker-compose down
