@@ -58,7 +58,7 @@ jobs:
 
       - name: test
         run: | 
-              docker exec frontend_container curl http://backend:8000/api/recettes/1
+             sudo docker exec frontend_container curl http://backend:8000/api/recettes/1
 
 
 
