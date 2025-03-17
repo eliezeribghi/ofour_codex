@@ -56,7 +56,7 @@ jobs:
             docker logs backend_container
       - name: Debug MySQL connection
         run: |
-              docker-compose exec -T mysql_db mysql -uroot -p$MYSQL_ROOT_PASSWORD -e "SHOW DATABASES;"
+              docker-compose exec -T mysql_db mysql -uroot -proot -e "SHOW DATABASES;"
       - name: Check backend logs
         run: docker-compose logs backend_container
       - name: Test network connectivity
