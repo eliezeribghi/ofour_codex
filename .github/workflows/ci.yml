@@ -89,7 +89,7 @@ jobs:
             node -e "
             (async () => {
               try {
-                const response = await fetch('http://backend:8000/api/recettes/1', { timeout: 5000 });
+                const response = await fetch('http://localhost:8000/api/recettes/1', { timeout: 5000 });
                 console.log('SUCCÈS :', await response.json());
               } catch (error) {
                 console.error('ÉCHEC :', error.message);
