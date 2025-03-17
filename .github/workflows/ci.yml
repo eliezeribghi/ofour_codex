@@ -72,7 +72,7 @@ jobs:
                 docker-compose exec frontend_container apk add --no-cache curl
             
                 # 4. Test de l'API avec authentification
-                curl -X GET -H "Authorization: Bearer TON_TOKEN_ICI" http://localhost:8000/api/recettes/1
+                curl -X GET -H "Authorization: Bearer TON_TOKEN_ICI" http://backend:8000/api/recettes/1
             
 
 
