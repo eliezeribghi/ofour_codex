@@ -52,7 +52,7 @@ jobs:
           echo "Tous les conteneurs sont prêts !"
       - name: instalation de curl
         run: | 
-             RUN apt-get update && apt-get install -y curl
+            apt-get update && apt-get install -y curl
 
       - name: test
         run: | 
