@@ -54,8 +54,8 @@ jobs:
         run: |
             docker ps -a
             docker logs backend_container
-            - name: Tester l'API
-            run: |
+      - name: Tester l'API
+        run: |
               # Vérifier l'état des conteneurs
               docker-compose ps
               
