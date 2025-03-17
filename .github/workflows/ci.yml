@@ -58,7 +58,7 @@ jobs:
 
       - name: test
         run: | 
-             sudo docker exec frontend_container curl http://localhost:8000/api/recettes/1
+             sudo curl http://backend:8000/api/recettes/1
 
       - name: Tester `php artisan serve` à l'intérieur du conteneur backend
         run: |
