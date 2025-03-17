@@ -72,7 +72,7 @@ jobs:
             node -e "
             (async () => {
               try {
-                const response = await fetch('http://backend:8000/api/recettes/1');
+                const response = await fetch('http://localhost:8000/api/recettes/1');
                 if (response.ok) {
                   const recettes = await response.json();
                   console.log('Test OK:', recettes);
