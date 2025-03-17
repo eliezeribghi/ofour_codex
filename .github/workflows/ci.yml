@@ -58,21 +58,19 @@ jobs:
         run: |
               # Vérifier l'état des conteneurs
               docker-compose ps
-              
-              # 1. Connexion MySQL en root et configuration des privilèges
-              docker-compose exec -T mysql_db mysql -uroot -proot-e "
-                CREATE USER IF NOT EXISTS 'user_db'@'%' IDENTIFIED BY '$MYSQL_PASSWORD';
-                GRANT ALL PRIVILEGES ON ofour.* TO 'user_db'@'%';
-                FLUSH PRIVILEGES;"
-              
-              # 2. Installation de curl dans le frontend si nécessaire
-              docker-compose exec frontend_container sh -c "command -v curl || (apk add --no-cache curl)"
-              
-              # 3. Obtenir l'IP du conteneur backend
-              BACKEND_IP=$(docker-compose exec backend_container sh -c "hostname -i")
-              
-              # 4. Test de l'API
+
+              # 1. Connexion MySQL et configuration des privilèges
+                 docker-compose exec -T mysql_db mysql -uroot -p$MYSQL_ROOT_PASSWORD -e "
+                 CREATE USER IF NOT EXISTS 'user_db'@'%' IDENTIFIED BY '$MYSQL_PASSWORD';
+                     GRANT ALL PRIVILEGES ON ofour.* TO 'user_db'@'%';
+                  FLUSH PRIVILEGES;"
+
+                # 2. Installation de curl dans le frontend
+                docker-compose exec frontend_container apk add --no-cache curl
+
+              # 3. Test de l'API
               docker-compose exec frontend_container curl -s http://backend:8000/api/recettes/1
+
           
             
             
