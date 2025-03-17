@@ -64,13 +64,13 @@ jobs:
             HOST_IP=$(docker run --rm alpine getent hosts host.docker.internal | awk '{ print $1 }')
             echo "IP de l'hôte depuis Docker : $HOST_IP"
         
-            # 3. Version adaptée pour localhost
+            # 3. Version adaptée pour backend
             node -e "
             (async () => {
               try {
                 // Utiliser l'IP spéciale pour accéder à l'hôte
                 const response = await fetch('http://${HOST_IP}:8000/api/recettes/1', {
-                  headers: { 'Host': 'localhost' }  // Important pour les configurations de serveur
+                  headers: { 'Host': 'backend' }  // Important pour les configurations de serveur
                 });
                 
                 if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -79,7 +79,7 @@ jobs:
               } catch (error) {
                 console.error('Échec critique :', error.message);
                 console.log('Conseils de débogage :');
-                console.log('1. Vérifiez que le backend tourne SUR VOTRE MACHINE : curl http://localhost:8000/api/recettes/1');
+                console.log('1. Vérifiez que le backend tourne SUR VOTRE MACHINE : curl http://backend:8000/api/recettes/1');
                 console.log('2. Testez la connexion depuis Docker : docker run --rm curlimages/curl curl -sv http://$HOST_IP:8000');
                 process.exit(1);
               }
