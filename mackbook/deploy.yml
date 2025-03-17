@@ -1,0 +1,43 @@
+---
+- name: Déployer mon projet avec Docker Compose sur la machine distante
+  hosts: web
+  become: true
+  tasks:
+    - name: Mettre à jour les paquets de la machine distante
+      apt:
+        update_cache: yes
+        upgrade: dist
+
+    - name: Installer Docker
+      apt:
+        name: docker.io
+        state: present
+
+    - name: Ajouter l'utilisateur actuel au groupe Docker (facultatif mais utile)
+      user:
+        name: "{{ ansible_user }}"
+        group: docker
+
+    - name: Installer Docker Compose
+      get_url:
+        url: https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)
+        dest: /usr/local/bin/docker-compose
+        mode: 'u+x'
+
+    - name: Vérifier la version de Docker Compose
+      command: docker-compose --version
+      register: docker_compose_version
+      changed_when: false
+
+    - name: Copier les fichiers du projet sur la machine distante
+      copy:
+        src: /chemin/vers/ton/projet/
+        dest: /var/www/mon_projet/
+        owner: www-data
+        group: www-data
+        mode: '0755'
+
+    - name: Lancer Docker Compose pour démarrer les services
+      command: docker-compose up -d
+      args:
+        chdir: /var/www/mon_projet
