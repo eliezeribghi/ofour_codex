@@ -56,9 +56,7 @@ jobs:
             sudo apt-get update
             sudo apt-get install -y curl
 
-      - name: test
-        run: | 
-              curl http://127.0.0.1:8000/api/recettes/1
+      
 
 
       - name: Tester `php artisan serve` à l'intérieur du conteneur backend
@@ -91,7 +89,9 @@ jobs:
                  echo "$ligne"
                done
              fi
-         
+      - name: test
+        run: | 
+                   curl http://127.0.0.1:8000/api/recettes/1
       - name: Arrêter Docker Compose après les tests
         run: docker-compose down
          
