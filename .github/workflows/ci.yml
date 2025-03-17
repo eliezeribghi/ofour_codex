@@ -66,25 +66,26 @@ jobs:
             echo "Attente du démarrage du serveur..."
             sleep 10
         
-            # Tester l'API backend avec Node.js
+            # Tester l'API backend avec Node.js (utilisant fetch natif)
             echo "Test de l'API backend..."
+            node --version
             node -e "
-              const fetch = require('node-fetch');
-              (async () => {
-                try {
-                  const response = await fetch('http://backend:8000/api/recettes/1');
-                  if (response.ok) {
-                    const recettes = await response.json();
-                    console.log('Test OK:', recettes);
-                  } else {
-                    throw new Error('Échec: ' + response.status + ' ' + response.statusText);
-                  }
-                } catch (error) {
-                  console.error('Erreur API:', error.message);
-                  process.exit(1);
+            (async () => {
+              try {
+                const response = await fetch('http://backend:8000/api/recettes/1');
+                if (response.ok) {
+                  const recettes = await response.json();
+                  console.log('Test OK:', recettes);
+                } else {
+                  throw new Error('Échec: ' + response.status + ' ' + response.statusText);
                 }
-              })();
+              } catch (error) {
+                console.error('Erreur API:', error.message);
+                process.exit(1);
+              }
+            })();
             "
+        
         
       
 
