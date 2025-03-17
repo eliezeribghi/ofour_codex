@@ -54,7 +54,8 @@ jobs:
       - name: Tester le Frontend dans son conteneur
         run: |
             # Lancer le serveur frontend en arrière-plan
-            docker exec frontend_container curl -X GET -H "Authorization: Bearer TON_TOKEN" http://backend:8000/api/recettes/1
+            docker exec frontend_container curl -X GET -H "Authorization: Bearer TON_TOKEN" http://localhost:8000/api/recettes/1
+            echo "Authorization: Bearer TON_TOKEN"
 
 
       - name: Tester `php artisan serve` à l'intérieur du conteneur backend
