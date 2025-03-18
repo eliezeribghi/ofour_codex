@@ -13,7 +13,7 @@
   async function getAllRecettes() {
     try {
       //const response = await fetch(`http://localhost:8000/api/recettes`);
-      const response = await fetch(`http://nor5-server.eddi.cloud:8000/api/recettes`);
+      const response = await fetch(`https://nor5-server.eddi.cloud/api/recettes`);
       if (response.ok) {
         recettes = await response.json();
       } else {
@@ -57,7 +57,7 @@
   async function getRecetteDetails(id) {
     try {
       //const response = await fetch(`http://localhost:8000/api/recettes/${id}`);
-      const response = await fetch(`http://nor5-server.eddi.cloud:8000/api/recettes/${id}`);
+      const response = await fetch(`https://nor5-server.eddi.cloud/api/recettes/${id}`);
       if (response.ok) {
         selectedRecette = await response.json();
         openModal();
