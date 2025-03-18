@@ -26,11 +26,13 @@ FROM nginx:alpine
 # Copy built frontend files from the build stage to NGINX
 COPY --from=build /app/dist /usr/share/nginx/html
 
-# Copy custom NGINX configuration (optional)
-COPY ./nginx/default.conf /etc/nginx/conf.d/default.conf
+# Copy custom NGINX configuration 
+COPY ./nginx/conf/default.conf /etc/nginx/conf.d/default.conf
+
+
 
 # Expose HTTP port
-EXPOSE 80
+EXPOSE 80 443
 
 # Start NGINX
 CMD ["nginx", "-g", "daemon off;"]
