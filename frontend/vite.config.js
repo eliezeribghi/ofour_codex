@@ -23,6 +23,7 @@ export default defineConfig({
   plugins: [svelte()],
   server: {
     host: true,
+    allowedHosts: ["eliezeribghi-server.eddi.cloud"],
     watch: {
       usePolling: true,
     }
