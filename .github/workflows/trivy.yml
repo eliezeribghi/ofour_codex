@@ -1,88 +1,24 @@
-name: CI
-
+name: build
 on:
   push:
+    branches:
+      - main
   pull_request:
-
 jobs:
   build:
-    runs-on: ubuntu-latest
-
-    services:
-      mysql:
-        image: mysql:5.7
-        env:
-          MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: ofour
-        ports:
-          - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
-
+    name: Build
+    runs-on: ubuntu-20.04
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v3
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
+      - name: Build an image from Dockerfile
+        run: docker build -t docker.io/my-organization/my-app:${{ github.sha }} .
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@0.28.0
         with:
-          node-version: "16"
-          registry-url: "https://registry.npmjs.org"
-
-      - name: Check if Docker is installed
-        run: docker --version
-
-      - name: Install Docker Compose (if needed)
-        run: |
-          if ! [ -x "$(command -v docker-compose)" ]; then
-            sudo curl -L "https://github.com/docker/compose/releases/download/v2.3.3/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-            sudo chmod +x /usr/local/bin/docker-compose
-          fi
-          docker-compose --version
-
-      - name: Stop system MySQL (if running)
-        run: sudo systemctl stop mysql || true
-
-      - name: Start MySQL container
-        run: |
-          docker run --name my-mysql -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=ofour -p 3307:3306 -d mysql:5.7
-
-      - name: Wait for MySQL
-        run: |
-          for i in {1..30}; do
-            if mysql -h 127.0.0.1 -u root -proot -e "SELECT 1;" &> /dev/null; then
-              echo "MySQL is ready!"
-              exit 0
-            fi
-            echo "Waiting for MySQL..."
-            sleep 5
-          done
-          echo "MySQL did not start in time." >&2
-          exit 1
-
-      - name: Set up PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.2'
-          extensions: mbstring, xml, bcmath, curl, zip
-
-      - name: Copy .env file
-        run: printf "%s" "${{ secrets.MY_ENV_FILE }}" > ./backend/.env
-
-      - name: Install Composer dependencies
-        working-directory: ./backend
-        run: composer install --prefer-dist --no-progress --no-suggest --no-interaction
-
-      - name: Set Laravel .env DB_HOST
-        run: echo "DB_HOST=127.0.0.1" >> ./backend/.env
-
-      - name: Generate APP_KEY
-        working-directory: ./backend
-        run: php artisan key:generate
-
-      - name: Run database migrations
-        working-directory: ./backend
-        run: php artisan migrate --force
-
-      - name: Run tests
-        working-directory: ./backend
-        run: php artisan test
+          image-ref: 'docker.io/my-organization/my-app:${{ github.sha }}'
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
