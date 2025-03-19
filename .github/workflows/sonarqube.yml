@@ -18,10 +18,14 @@ on:
       - sonarqube
 
 jobs:
-  analysis:
+
+  start_Sonar-scan:
     runs-on: ubuntu-latest
     steps:
-      - name: Analyze with SonarQube
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Official SonarQube Scan
 
         # You can pin the exact commit or the version.
         # uses: SonarSource/sonarqube-scan-action@v1.1.0
