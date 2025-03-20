@@ -2,7 +2,7 @@ name: build
 on:
   push:
     branches:
-    - main
+    - Trivy
   pull_request:
 jobs:
   build:
@@ -27,4 +27,3 @@ jobs:
         output: 'trivy-results.sarif'
         severity: 'CRITICAL'
         skip-setup-trivy: true
-        
