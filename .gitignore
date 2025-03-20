@@ -7,7 +7,7 @@ grafana-volume/
 /public/storage
 /storage/*.key
 /backend/vendor
-
+.ssh/
 .env.backup
 .phpunit.result.cache
 docker-compose.override.yml
