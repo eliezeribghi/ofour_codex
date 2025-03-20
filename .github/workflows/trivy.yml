@@ -20,7 +20,6 @@ jobs:
           hide-progress: false
           exit-code: '1'
           format: 'sarif'
-          template: '@/contrib/sarif.tpl'
           output: 'trivy-results.sarif'
           severity: 'HIGH, CRITICAL'
 
