@@ -1,8 +1,8 @@
-name: build
+name: Trivy - Scan repo
 on:
   push:
     branches:
-      - main
+      - Trivy
   pull_request:
 jobs:
   build:
