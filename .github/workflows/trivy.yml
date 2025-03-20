@@ -2,7 +2,7 @@ name: Trivy - scan repo
 on:
   push:
     branches:
-      - main
+      - Trivy
   pull_request:
 jobs:
   build:
