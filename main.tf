@@ -4,10 +4,14 @@ provider "google" {
   region      = "us-central1"
   zone        = "us-central1-a"
 }
+<<<<<<< HEAD
 resource "google_compute_address" "default" {
   name   = "ofour-static-ip"
   region = "us-central1"
 }
+=======
+
+>>>>>>> github-actions
 # Create the first Compute Engine instance
 resource "google_compute_instance" "server" {
   name         = "ofour-test-server"
@@ -22,9 +26,13 @@ resource "google_compute_instance" "server" {
 
   network_interface {
     network = "default"
+<<<<<<< HEAD
     access_config {
       nat_ip = google_compute_address.default.address # Maintenant Terraform le reconnaît
     }
+=======
+    access_config {}
+>>>>>>> github-actions
   }
 
   metadata = {
@@ -40,7 +48,11 @@ resource "google_compute_instance" "server" {
 
 
 # Create the fourth Compute Engine instance
+<<<<<<< HEAD
 resource "google_compute_instance" "ofour-dev" {
+=======
+resource "google_compute_instance" "nour" {
+>>>>>>> github-actions
   name         = "ofour-dev"
   machine_type = "n4-standard-2"
   tags         = ["ssh"]
@@ -80,6 +92,7 @@ resource "google_compute_firewall" "ssh" {
   target_tags   = ["ssh"]
 }
 
+<<<<<<< HEAD
 
 ## Creation des buckets
 
@@ -219,3 +232,5 @@ resource "google_sql_user" "root" {
 }
 
 
+=======
+>>>>>>> github-actions
