@@ -14,4 +14,6 @@ npm-debug.log
 yarn-error.log
 /.idea
 /.vscode
-terraform.tfvars
+terraform.tfvars.terraform/
+google-cloud-cli-linux-x86_64.tar.gz
+google-cloud-sdk/platform/bundledpythonunix/lib/libpython3.12.*
