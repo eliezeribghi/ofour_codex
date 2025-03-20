@@ -1,10 +1,13 @@
-/frontend/node_modules
-/frontend/dist
+frontend/node_modules
+frontend/dist   
+backend/.env
+.env
+grafana-volume/
 /public/hot
 /public/storage
 /storage/*.key
 /backend/vendor
-.env
+.ssh/
 .env.backup
 .phpunit.result.cache
 docker-compose.override.yml
@@ -14,3 +17,4 @@ npm-debug.log
 yarn-error.log
 /.idea
 /.vscode
+ansible/ansible_env
