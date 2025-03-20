@@ -7,6 +7,7 @@ services:
     container_name: frontend_container
     restart: always
     ports:
+
       - "80:80"
       - "443:443"
 
@@ -15,6 +16,7 @@ services:
       - ./nginx/conf/:/etc/nginx/conf.d/:ro
       - ./certbot/www/:/var/www/certbot/:ro
       - ./certbot/conf/:/etc/nginx/ssl/:ro
+
     networks:
       - front-network
     depends_on:
@@ -35,8 +37,10 @@ services:
     restart: always
     ports:
       - "8000:8000"
+
     env_file:
       - path: .env
+
     networks:
       - db-network
       - front-network
@@ -50,14 +54,16 @@ services:
     image: adminer
     container_name: adminer
     restart: always
+
     
     ports:
       - 8080:8080
     networks:
       - db-network
+
     env_file:
       - path: .env
-  
+
     depends_on:
       - mysql
   mysql:
@@ -66,8 +72,10 @@ services:
     ports:
       - "3306:3306"
     env_file:
+
       - path: .env
    
+
     volumes:
       - ./bdd/init.sql:/docker-entrypoint-initdb.d/init.sql
       - db_data:/var/lib/mysql
