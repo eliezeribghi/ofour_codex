@@ -1,0 +1,140 @@
+{
+  "version": 4,
+  "terraform_version": "1.11.2",
+  "serial": 16,
+  "lineage": "bbc19fd7-f727-8e07-26bf-801a0ac4c9cc",
+  "outputs": {},
+  "resources": [
+    {
+      "mode": "managed",
+      "type": "google_compute_address",
+      "name": "default",
+      "provider": "provider[\"registry.terraform.io/hashicorp/google\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "address": "34.60.91.213",
+            "address_type": "EXTERNAL",
+            "creation_timestamp": "2025-03-19T08:14:06.225-07:00",
+            "description": "",
+            "effective_labels": {
+              "goog-terraform-provisioned": "true"
+            },
+            "id": "projects/skilled-anthem-452614-h7/regions/us-central1/addresses/ofour-static-ip",
+            "ip_version": "",
+            "ipv6_endpoint_type": "",
+            "label_fingerprint": "vezUS-42LLM=",
+            "labels": {},
+            "name": "ofour-static-ip",
+            "network": "",
+            "network_tier": "PREMIUM",
+            "prefix_length": 0,
+            "project": "skilled-anthem-452614-h7",
+            "purpose": "",
+            "region": "us-central1",
+            "self_link": "https://www.googleapis.com/compute/v1/projects/skilled-anthem-452614-h7/regions/us-central1/addresses/ofour-static-ip",
+            "subnetwork": "",
+            "terraform_labels": {
+              "goog-terraform-provisioned": "true"
+            },
+            "timeouts": null,
+            "users": [
+              "https://www.googleapis.com/compute/v1/projects/skilled-anthem-452614-h7/zones/us-central1-a/instances/ofour-test-server"
+            ]
+          },
+          "sensitive_attributes": [],
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxMjAwMDAwMDAwMDAwLCJkZWxldGUiOjEyMDAwMDAwMDAwMDAsInVwZGF0ZSI6MTIwMDAwMDAwMDAwMH19"
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "google_storage_bucket",
+      "name": "static",
+      "provider": "provider[\"registry.terraform.io/hashicorp/google\"]",
+      "instances": [
+        {
+          "schema_version": 3,
+          "attributes": {
+            "autoclass": [],
+            "cors": [],
+            "custom_placement_config": [],
+            "default_event_based_hold": false,
+            "effective_labels": {
+              "goog-terraform-provisioned": "true"
+            },
+            "enable_object_retention": false,
+            "encryption": [],
+            "force_destroy": false,
+            "hierarchical_namespace": [
+              {
+                "enabled": false
+              }
+            ],
+            "id": "b576555920efb52b-new-bucket",
+            "labels": {},
+            "lifecycle_rule": [],
+            "location": "EU",
+            "logging": [],
+            "name": "b576555920efb52b-new-bucket",
+            "project": "skilled-anthem-452614-h7",
+            "project_number": 961021330373,
+            "public_access_prevention": "inherited",
+            "requester_pays": false,
+            "retention_policy": [],
+            "rpo": "DEFAULT",
+            "self_link": "https://www.googleapis.com/storage/v1/b/b576555920efb52b-new-bucket",
+            "soft_delete_policy": [
+              {
+                "effective_time": "2025-03-19T17:09:44.522Z",
+                "retention_duration_seconds": 604800
+              }
+            ],
+            "storage_class": "STANDARD",
+            "terraform_labels": {
+              "goog-terraform-provisioned": "true"
+            },
+            "timeouts": null,
+            "uniform_bucket_level_access": true,
+            "url": "gs://b576555920efb52b-new-bucket",
+            "versioning": [
+              {
+                "enabled": true
+              }
+            ],
+            "website": []
+          },
+          "sensitive_attributes": [],
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjo2MDAwMDAwMDAwMDAsInJlYWQiOjI0MDAwMDAwMDAwMCwidXBkYXRlIjoyNDAwMDAwMDAwMDB9LCJzY2hlbWFfdmVyc2lvbiI6IjMifQ==",
+          "dependencies": [
+            "random_id.bucket_ofour"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "random_id",
+      "name": "bucket_ofour",
+      "provider": "provider[\"registry.terraform.io/hashicorp/random\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "b64_std": "tXZVWSDvtSs=",
+            "b64_url": "tXZVWSDvtSs",
+            "byte_length": 8,
+            "dec": "13075732409409844523",
+            "hex": "b576555920efb52b",
+            "id": "tXZVWSDvtSs",
+            "keepers": null,
+            "prefix": null
+          },
+          "sensitive_attributes": []
+        }
+      ]
+    }
+  ],
+  "check_results": null
+}
