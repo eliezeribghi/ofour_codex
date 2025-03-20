@@ -1,0 +1,18 @@
+---
+- name: Create user
+  ansible.builtin.user:
+    name: "{{ item }}"
+    create_home: true
+    shell: /bin/bash
+  loop: "{{ ssh_user }}"
+  tags:
+    - user
+
+- name: Copy ssh keys
+  ansible.posix.authorized_key:
+    user: "{{ item }}"
+    state: present
+    key: https://github.com/{{ item }}.keys
+  loop: "{{ ssh_user }}"
+  tags:
+    - key_ssh

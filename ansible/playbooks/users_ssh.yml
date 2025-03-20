@@ -1,0 +1,6 @@
+---
+- name: Add users
+  hosts: servers
+  become: true
+  roles:
+    - users_ssh
