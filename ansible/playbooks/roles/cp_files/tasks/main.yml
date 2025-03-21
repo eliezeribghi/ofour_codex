@@ -1,0 +1,19 @@
+# - name: Create a directory if it does not exist
+#   ansible.builtin.file:
+#     path: /opt/codex
+#     state: directory
+#     mode: '0755'
+
+# - name: Copie compose 
+#   ansible.builtin.copy:
+#     src: /srv/myfiles/foo.conf
+#     dest: /etc/foo.conf
+#     owner: foo
+#     group: foo
+#     mode: '0644
+
+- name: Copying the Directory and its contents
+  copy:
+    src: ../../../../../codex-prod
+    dest: /opt
+    mode: 0755

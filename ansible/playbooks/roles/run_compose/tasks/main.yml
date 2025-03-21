@@ -1,0 +1,23 @@
+---
+- name: Log into DockerHub
+  docker_login:
+    username: nor5
+    password: "{{ docker_password }}"
+
+- name: Show results
+  ansible.builtin.debug:
+    var: output
+    
+- name: Tear down existing services
+  community.docker.docker_compose_v2:
+    project_src: codex
+    state: absent
+
+- name: Create and start services
+  community.docker.docker_compose_v2:
+    project_src: codex
+  register: output
+
+- name: Show results
+  ansible.builtin.debug:
+    var: output

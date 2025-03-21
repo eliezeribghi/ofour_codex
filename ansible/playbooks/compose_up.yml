@@ -1,0 +1,7 @@
+---
+
+- name: Run docker compose up 
+  hosts: servers
+  become: true
+  roles:
+    - compose_up
