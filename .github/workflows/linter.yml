@@ -19,7 +19,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Run npm install
-        run: npm install
+        run: sudo npm install
       # Runs the ESlint code analysis
       - name: Run ESLint
         # eslint exits 1 if it finds anything to report
