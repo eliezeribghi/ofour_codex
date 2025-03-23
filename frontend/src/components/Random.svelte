@@ -5,15 +5,30 @@
 
   let recetteAleatoire = null;
 
+  // Fetch environment variables dynamically
+  // Fetch environment variables from window.__env__
+  const apiUrl = VITE_API_URL;
+  const username = VITE_API_USERNAME;
+  const password = VITE_API_PASSWORD;
+
+  // Base64 encode the credentials for Basic Auth
+  const credentials = btoa(`${username}:${password}`);
   // Fonction pour obtenir les données de l'API
   async function getCardData() {
     try {
       //const response = await fetch(`http://localhost:8000/api/recettes/`);
-      const response = await fetch(`https://nor5-server.eddi.cloud/api/recettes/`);
+      const response = await fetch(`${apiUrl}/api/recettes/`, {
+      method: "GET",
+      headers: {
+        Authorization: `Basic ${credentials}`,
+      },
+    });
+      
+     
 
-    if (response.ok) {
-  recettes = await response.json();
-  console.log("Données reçues de l'API : ", recettes);
+      if (response.ok) {
+        recettes = await response.json();
+        console.log("Données reçues de l'API : ", recettes);
 
         // Sélectionner une recette aléatoire
         recetteAleatoire =
@@ -31,13 +46,13 @@
     getCardData();
   });
 </script>
+
 {#if recetteAleatoire}
   <section class="random-recipe">
     <h1>{recetteAleatoire.titre}</h1>
-   
 
     <h3>{recetteAleatoire.contenu}</h3>
- <img 
+    <img
       class="random-recipe-img-header"
       src={recetteAleatoire.image_url}
       alt={recetteAleatoire.titre}
@@ -46,7 +61,7 @@
     <div class="recipe-random-description">
       <h3>{recetteAleatoire.niveau_difficulte}</h3>
     </div>
-    
+
     <section class="recipe-random-ingredient">
       <ul>
         <li>
@@ -75,15 +90,13 @@
       </ul>
 
       {#if recetteAleatoire.etapes_preparation && recetteAleatoire.etapes_preparation.length > 0}
-      <h3>Étapes de préparation :</h3>
-      <ol>
-        {#each recetteAleatoire.etapes_preparation as etape, index}
-          <li>Étape {index + 1}: {etape.description_etape}</li>
-        {/each}
-      </ol>
-    {/if}
-    
-  
+        <h3>Étapes de préparation :</h3>
+        <ol>
+          {#each recetteAleatoire.etapes_preparation as etape, index}
+            <li>Étape {index + 1}: {etape.description_etape}</li>
+          {/each}
+        </ol>
+      {/if}
     </section>
   </section>
 {:else}

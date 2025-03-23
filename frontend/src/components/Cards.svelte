@@ -5,7 +5,11 @@
   let selectedRecette = null; // Variable pour stocker la recette sélectionnée
   let showModal = false;
   let scrollY = 0; // Pour sauvegarder la position du scroll
-
+  const apiUrl = VITE_API_URL;
+  const username = VITE_API_USERNAME;
+  const password = VITE_API_PASSWORD;
+  // Base64 encode the credentials for Basic Auth
+  const credentials = btoa(`${username}:${password}`);
   // Fonction pour ouvrir la modale et sauvegarder la position du scroll
   function openModal() {
     scrollY = window.scrollY;
@@ -22,16 +26,26 @@
   async function getCardData() {
     try {
       // const response = await fetch(`http://localhost:8000/api/recettes/`);
-      const response = await fetch(`https://nor5-server.eddi.cloud/api/recettes/`);
+      const response = await fetch(`${apiUrl}/api/recettes/`, {
+      method: "GET",
+      headers: {
+        Authorization: `Basic ${credentials}`,
+      },
+    });
+      
+  
+
       if (response.ok) {
         recettes = await response.json();
         console.log("test", recettes);
       } else {
         console.error(
-          "Erreur lors de la récupération des données des recettes",
+          "Erreur lors de la récupération des données des recettes"
+          
         );
       }
     } catch (error) {
+      
       console.error("Une erreur s'est produite:", error);
     }
   }
@@ -42,8 +56,14 @@
   async function getRecetteDetails(id) {
     try {
       // const response = await fetch(`http://localhost:8000/api/recettes/${id}`);
-      const response = await fetch(`https://nor5-server.eddi.cloud/api/recettes/${id}`);
-
+      const response = await fetch(`${apiUrl}/api/recettes/${id}`, {
+      method: "GET",
+      headers: {
+        Authorization: `Basic ${credentials}`,
+      },
+    });
+ 
+      
       if (response.ok) {
         selectedRecette = await response.json(); // Stocke les détails de la recette
         console.log("id", selectedRecette);
@@ -51,7 +71,7 @@
         openModal(); // Ouvre la modale après avoir récupéré les détails
       } else {
         console.error(
-          "Erreur lors de la récupération des détails de la recette",
+          "Erreur lors de la récupération des détails de la recette"
         );
       }
     } catch (error) {
@@ -77,11 +97,13 @@
             <span>{recette.contenu}</span>
           </li>
           <li class="theme-card__infos-elt">
-            <img src="../public/icons/icons8-dificulty-64.png" alt="Difficulté" />
+            <img
+              src="../public/icons/icons8-dificulty-64.png"
+              alt="Difficulté"
+            />
             <span>{recette.niveau_difficulte}</span>
           </li>
         </ul>
-        
       </div>
       <button
         on:click={() => getRecetteDetails(recette.id)}
@@ -113,7 +135,7 @@
           Capacité : <!-- Ajouter le bon champ pour la capacité ici si nécessaire -->
         </li>
         <li>
-         <h3>   Ingrédients ; </h3>
+          <h3>Ingrédients ;</h3>
           <ul>
             {#each selectedRecette.recette_ingredients as recette_ingredient}
               <li>

@@ -4,4 +4,4 @@
   hosts: servers
   become: true
   roles:
-    - compose_up
+    - run_compose

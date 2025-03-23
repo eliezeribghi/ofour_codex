@@ -20,3 +20,4 @@ yarn-error.log
 .ssh
 codex-prod
 ansible/env_ansible
+frontend/.env

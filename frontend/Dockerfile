@@ -29,10 +29,12 @@ COPY --from=build /app/dist /usr/share/nginx/html
 # Copy custom NGINX configuration 
 COPY ./nginx/conf/default.conf /etc/nginx/conf.d/default.conf
 
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
-RUN htpasswd   /etc/nginx/.htpasswd api_user
 # Expose HTTP port
 EXPOSE 80 443
+ENTRYPOINT ["/entrypoint.sh"]
 
 # Start NGINX
 CMD ["nginx", "-g", "daemon off;"]

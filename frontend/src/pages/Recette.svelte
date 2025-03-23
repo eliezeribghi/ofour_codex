@@ -1,6 +1,17 @@
 <script>
   import Modal from "../components/Modal.svelte";
   import { onMount } from "svelte";
+
+ 
+  const apiUrl = VITE_API_URL;
+  const username = VITE_API_USERNAME;
+  const password = VITE_API_PASSWORD;
+  // Base64 encode the credentials for Basic Auth
+  const credentials = btoa(`${username}:${password}`);
+
+
+
+
   
   let recettes = [];
   let searchQuery = "";
@@ -8,12 +19,23 @@
   let showModal = false;
   let scrollY = 0;
   let recetteType = "all"; // Par défaut, afficher toutes les recettes
+  
 
+
+  
   // Récupérer toutes les recettes
   async function getAllRecettes() {
     try {
       //const response = await fetch(`http://localhost:8000/api/recettes`);
-      const response = await fetch(`https://nor5-server.eddi.cloud/api/recettes`);
+      const response = await fetch(`${apiUrl}/api/recettes/`, {
+      method: "GET",
+      headers: {
+        Authorization: `Basic ${credentials}`,
+      },
+    });
+    
+  
+
       if (response.ok) {
         recettes = await response.json();
       } else {
@@ -56,8 +78,18 @@
   // Récupérer les détails d'une recette
   async function getRecetteDetails(id) {
     try {
+
+
       //const response = await fetch(`http://localhost:8000/api/recettes/${id}`);
-      const response = await fetch(`https://nor5-server.eddi.cloud/api/recettes/${id}`);
+      const response = await fetch(`${apiUrl}/api/recettes/${id}`, {
+      method: "GET",
+      headers: {
+        Authorization: `Basic ${credentials}`,
+      },
+    });
+    
+    
+     
       if (response.ok) {
         selectedRecette = await response.json();
         openModal();
