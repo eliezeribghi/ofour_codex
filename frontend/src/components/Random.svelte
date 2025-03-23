@@ -7,9 +7,9 @@
 
   // Fetch environment variables dynamically
   // Fetch environment variables from window.__env__
-  const apiUrl = VITE_API_URL;
-  const username = VITE_API_USERNAME;
-  const password = VITE_API_PASSWORD;
+  const apiUrl = import.meta.env.VITE_API_URL;
+  const username = import.meta.env.VITE_API_USERNAME;
+  const password = import.meta.env.VITE_API_PASSWORD;
 
   // Base64 encode the credentials for Basic Auth
   const credentials = btoa(`${username}:${password}`);
