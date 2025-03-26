@@ -1,6 +1,6 @@
 provider "google" {
-  project     = "skilled-anthem-452614-h7"
-  credentials = "google_key.json"
+  project     = "ofour-452518"
+  credentials = file("key.json")
   region      = "us-central1"
   zone        = "us-central1-a"
 }
@@ -8,6 +8,33 @@ resource "google_compute_address" "default" {
   name   = "ofour-static-ip"
   region = "us-central1"
 }
+resource "google_project_service" "enable_resource_manager" {
+  service = "cloudresourcemanager.googleapis.com"
+  project = "59248914206"
+}
+resource "google_project_iam_custom_role" "custom_iam_role" {
+  role_id     = "customIamRole"
+  title       = "Custom IAM Role"
+  description = "A custom role with specific IAM permissions"
+  permissions = [
+    "iam.roles.list",
+    "iam.roles.create",
+    "iam.roles.delete",
+    "resourcemanager.projects.getIamPolicy",
+    "resourcemanager.projects.setIamPolicy"
+  ]
+}
+
+resource "google_project_iam_binding" "project" {
+  project = "ofour-452518"
+  role    = "roles/iam.roleAdmin"
+  members = [
+    "serviceAccount:ofour-409@ofour-452518.iam.gserviceaccount.com",
+  ]
+}
+
+
+
 # Create the first Compute Engine instance
 resource "google_compute_instance" "server" {
   name         = "ofour-test-server"
@@ -19,6 +46,7 @@ resource "google_compute_instance" "server" {
       image = "projects/ubuntu-os-cloud/global/images/ubuntu-2404-noble-amd64-v20250117"
     }
   }
+  
 
   network_interface {
     network = "default"
@@ -103,18 +131,18 @@ resource "google_storage_bucket" "static" {
 resource "google_storage_bucket_object" "stats_file" {
   name         = "stats"                           # Nom du fichier à stocker dans le bucket
   bucket       = google_storage_bucket.static.name # Utilisation du bucket dynamique généré
-  source       = "./terraform.tfstate"             # Chemin du fichier local à uploader
+  source       = "terraform.tfstate"             # Chemin du fichier local à uploader
   content_type = "application/json"                # Type du fichier (adapter si nécessaire)
 
 }
 resource "google_storage_bucket_object" "sql_file" {
   name   = "sql"
   bucket = google_storage_bucket.static.name
-  source = "bdd/init.sql"
+  source = "../bdd/init.sql"
 }
 
 resource "google_project_iam_member" "sql_client" {
-  project = "skilled-anthem-452614-h7"
+  project = "ofour-452518"
   role    = "roles/cloudsql.client"
   member  = "serviceAccount:${google_sql_database_instance.mysql-instance.service_account_email_address}"
 }
@@ -144,6 +172,7 @@ resource "google_sql_database_instance" "mysql-instance" {
     availability_type = "ZONAL"
     disk_size         = 10
     disk_type         = "PD_SSD"
+    deletion_protection_enabled = true
     ip_configuration {
       # Add optional authorized networks
       # Update to match the customer's networks
@@ -167,13 +196,10 @@ resource "google_sql_database_instance" "mysql-instance" {
         name  = "nour"
         value = "94.239.80.68"
       }
-      authorized_networks {
-        name  = "nour"
-        value = "94.239.80.68"
-      }
+     
       authorized_networks {
         name  = "nour_kourou"
-        value = "35.180.86.91"
+        value = "13.39.86.121"
       }
       authorized_networks {
         name  = "eliezer_kourou"
@@ -191,19 +217,45 @@ resource "google_sql_database_instance" "mysql-instance" {
 
 }
 
+# resource "null_resource" "import_sql" {
+#   depends_on = [google_sql_database_instance.mysql-instance, google_storage_bucket_object.sql_file]
+
+# provisioner "local-exec" {
+#   command = <<EOT
+#     gcloud auth activate-service-account ${google_sql_database_instance.mysql-instance.service_account_email_address} --key-file=key.json
+#     gcloud sql import sql ${google_sql_database_instance.mysql-instance.name} gs://${google_storage_bucket.static.name}/${google_storage_bucket_object.sql_file.name} --database=ofour
+#   EOT
+# }
+
+# }
+
 resource "null_resource" "import_sql" {
-  depends_on = [google_sql_database_instance.mysql-instance, google_storage_bucket_object.sql_file]
+  depends_on = [
+    google_sql_database_instance.mysql-instance,
+    google_storage_bucket_object.sql_file,
+    google_sql_database.ofour
+  ]
 
-provisioner "local-exec" {
-  command = <<EOT
-    gcloud auth activate-service-account ${google_sql_database_instance.mysql-instance.service_account_email_address} --key-file=google_key.json
-    gcloud sql import sql ${google_sql_database_instance.mysql-instance.name} gs://${google_storage_bucket.static.name}/${google_storage_bucket_object.sql_file.name} --database=ofour
-  EOT
+  triggers = {
+    sql_content_hash = filebase64sha256("../bdd/init.sql")
+  }
+
+  provisioner "local-exec" {
+    command = <<EOT
+      echo "Authenticating with gcloud..."
+      gcloud auth activate-service-account ${google_sql_database_instance.mysql-instance.service_account_email_address} --key-file=key.json
+      echo "Authentication successful."
+
+      echo "Importing SQL file..."
+      gcloud sql import sql ${google_sql_database_instance.mysql-instance.name} gs://${google_storage_bucket.static.name}/${google_storage_bucket_object.sql_file.name} --database=ofour
+      echo "SQL file imported."
+
+      echo "Verifying import..."
+      gcloud sql connect ${google_sql_database_instance.mysql-instance.name} --user=root --password=${var.db_password} --quiet --command="USE ofour; SHOW TABLES;"
+      echo "Verification complete."
+    EOT
+  }
 }
-
-}
-
-
 
 
 
@@ -212,10 +264,12 @@ resource "google_sql_database" "ofour" {
   instance = google_sql_database_instance.mysql-instance.name
 }
 
+
 resource "google_sql_user" "root" {
-  name        = "root"
-  instance    = google_sql_database_instance.mysql-instance.name
-  password_wo = "v7f3dB5Y6U6cZ5Pf"
+  name     = "root"
+  instance = google_sql_database_instance.mysql-instance.name
+  password_wo = var.db_password
 }
+
 
 
