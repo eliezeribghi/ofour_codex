@@ -1,0 +1,11 @@
+[33mcommit 50f67586e6b07eb4e8d8e31139011bf57faef1e6[m
+Author: eliezeribghi <iibgui@yahoo.fr>
+Date:   Tue Apr 1 17:00:42 2025 +0200
+
+    Supprime les fichiers trop volumineux pour GitHub
+
+[33mcommit c4408e3fb52eb2e2f54bd4991a0e17fce03e703e[m
+Author: eliezeribghi <iibgui@yahoo.fr>
+Date:   Wed Mar 26 12:24:06 2025 +0100
+
+    Completed the Terraform configuration setup
