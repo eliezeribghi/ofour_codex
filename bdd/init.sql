@@ -22,7 +22,7 @@ CREATE TABLE `categories` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO `categories` (`id`, `nom`, `created_at`, `updated_at`) VALUES
-(00000000000000000001,	'Platst principaux',	NULL,	NULL),
+(00000000000000000001,	'Plats principaux',	NULL,	NULL),
 (00000000000000000002,	'Plats principaux',	NULL,	NULL),
 (00000000000000000003,	'Soupe',	NULL,	NULL),
 (00000000000000000004,	'Plats principaux',	NULL,	NULL),

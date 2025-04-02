@@ -28,7 +28,9 @@ class RecetteController extends Controller
                 ->get()
                 ->map(function ($recette) {
                     // Vérification et formatage correct de l'image
-                    $recette->image_url = $recette->image_url ? asset('./images/' . basename($recette->image_url)) : null;
+                    //$recette->image_url = $recette->image_url ? asset('./images/' . basename($recette->image_url)) : null;
+                    $recette->image_url = $recette->image_url ? secure_asset('./images/' . basename($recette->image_url)) : null;
+
                     return $recette;
                 });
 
@@ -96,7 +98,7 @@ class RecetteController extends Controller
 
         //  1. Initialiser Google Cloud Storage
         $storage = new StorageClient([
-            'keyFilePath' => storage_path('app/ofour-codes-5f81cd2295eb'), // Chemin vers la clé JSON
+            'keyFilePath' => storage_path('app/ofour-452518-5f81cd2295eb'), // Chemin vers la clé JSON
         ]);
         $bucketName = 'bucket_oufour'; // Remplace par le nom de ton bucket
         $bucket = $storage->bucket($bucketName);

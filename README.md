@@ -113,7 +113,7 @@ php artisan db:seed
 
 ---
 
-### **Lancement du projet**
+### **Lancement du projet on local**
 
 #### 1. Backend (Laravel)
 
@@ -167,6 +167,9 @@ L'application expose une API REST via Laravel pour interagir avec les recettes. 
 Pour tester ces routes, tu peux utiliser **Thunder Client** ou **Postman**.
 
 ---
+
+
+
 
 ### **Contributions**
 

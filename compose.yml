@@ -2,58 +2,68 @@
 
 services:
   frontend:
-    build: ./frontend
-      
+    image: nor5/codex-frontends
+
     container_name: frontend_container
     restart: always
     ports:
-      - "5173:5173"
+
+      - "80:80"
+      - "443:443"
+
     volumes:
-      - ./frontend:/app
+      - ./images:/usr/share/nginx/html/images
+      - ./nginx/conf/:/etc/nginx/conf.d/:ro
+      - ./certbot/www/:/var/www/certbot/:ro
+      - ./certbot/conf/:/etc/nginx/ssl/:ro
+
     networks:
       - front-network
     depends_on:
       - backend
 
-  backend:
-    build: ./backend
+  certbot:
+    image: certbot/certbot:latest
+    networks:
+      - front-network
+    volumes:
+      - ./certbot/www/:/var/www/certbot/:rw
+      - ./certbot/conf/:/etc/letsencrypt/:rw
       
+  backend:
+    image: nor5/codex-backend
+
     container_name: backend_container
     restart: always
     ports:
       - "8000:8000"
-    env_file:
-      - path: ./backend/.env
-    environment:
-      - DB_CONNECTION=${DB_CONNECTION}
-      - DB_HOST=${DB_HOST}
-      - DB_PORT=${DB_PORT}
-      - DB_DATABASE=${DB_DATABASE}
-      - DB_USERNAME=${DB_USERNAME}
-      - DB_PASSWORD=${DB_PASSWORD}
 
-    command:  php artisan serve --host=0.0.0.0 --port=8000
-    volumes:
-      - ./backend:/app
+    env_file:
+      - path: .env
+
     networks:
       - db-network
       - front-network
+    volumes:
+      - ./images:/app/public/images
     depends_on:
-      - mysql
- 
+      mysql:
+        condition: service_healthy
+
   adminer:
     image: adminer
     container_name: adminer
     restart: always
-    env_file:
-      - path : ./backend/.env
+
+    
     ports:
       - 8080:8080
     networks:
       - db-network
-    environment:
-      - ADMINER_DEFAULT_SERVER=${ADMINER_DEFAULT_SERVER}
-      - ADMINER_DESIGN=pepa-linha-dark
+
+    env_file:
+      - path: .env
+
     depends_on:
       - mysql
   mysql:
@@ -62,21 +72,25 @@ services:
     ports:
       - "3306:3306"
     env_file:
-      - path : ./backend.env
-    environment:
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-      - MYSQL_DATABASE=${DB_NAME}
-      - MYSQL_USER=${DB_USERNAME}
-      - MYSQL_PASSWORD=${DB_PASSWORD}
+
+      - path: .env
+   
+
     volumes:
       - ./bdd/init.sql:/docker-entrypoint-initdb.d/init.sql
       - db_data:/var/lib/mysql
     networks:
       - db-network
+    healthcheck:
+        test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "${MYSQL_USER}", "-p${MYSQL_PASSWORD}"] # command to run
+        interval: 10s # Frequency every 10 seconds
+        timeout: 5s # if no response after 5s the test is considred failed 
+        retries: 5 # 5 retries before considering the test failed 
+        start_period: 30s
+
 
 volumes:
   db_data:
 networks:
   db-network:
   front-network:
-  
