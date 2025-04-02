@@ -21,3 +21,4 @@ yarn-error.log
 codex-prod
 ansible/env_ansible
 frontend/.env
+secrets.yml

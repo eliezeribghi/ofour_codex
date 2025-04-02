@@ -1,0 +1,29 @@
+
+
+- name: Install Certbot and dependencies
+  apt:
+    name: certbot
+    state: present
+    update_cache: yes
+
+- name: Create Certbot www directory
+  file:
+    path: /etc/letsencrypt/certbot/www
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Generate SSL certificate using Certbot
+  command: >
+    certbot certonly --standalone -w /etc/letsencrypt/certbot/www
+    --agree-tos --email noorbelkacem5@gmail.com
+    --non-interactive --expand
+    -d ofour.work.gd 
+
+- name: Set up auto-renewal
+  cron:
+    name: "Renew Let's Encrypt certificates"
+    job: "certbot renew --quiet"
+    minute: "0"
+    hour: "3"

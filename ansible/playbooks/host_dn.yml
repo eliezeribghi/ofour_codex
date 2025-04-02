@@ -1,0 +1,6 @@
+---
+- name: Add domaine name to hosts
+  hosts: servers
+  become: true
+  roles:
+    - host_dn
