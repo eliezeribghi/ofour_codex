@@ -8,7 +8,8 @@
   // Fonction pour obtenir les données de l'API
   async function getCardData() {
     try {
-      const response = await fetch(`http://localhost:8000/api/recettes/`);
+      //const response = await fetch(`http://localhost:8000/api/recettes/`);
+      const response = await fetch(`https://nor5-server.eddi.cloud/api/recettes/`);
 
     if (response.ok) {
   recettes = await response.json();
