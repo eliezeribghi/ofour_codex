@@ -7,7 +7,10 @@ grafana-volume/
 /public/storage
 /storage/*.key
 /backend/vendor
+
 /.ssh_codex/
+
+ 9a19e0edba62aa345e865ff4118eae20d0846e4b
 .env.backup
 .phpunit.result.cache
 docker-compose.override.yml
@@ -17,7 +20,11 @@ npm-debug.log
 yarn-error.log
 /.idea
 /.vscode
+
 ansible/ansible_env
 /terrform/*.tftests
 /terraform/key.json
 /terraform/*.tfvars
+
+ansible/ansible_env
+
