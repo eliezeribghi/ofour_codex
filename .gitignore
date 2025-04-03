@@ -19,3 +19,4 @@ yarn-error.log
 /.idea
 /.vscode
 ansible/ansible_env
+terraform/terraform.ft
