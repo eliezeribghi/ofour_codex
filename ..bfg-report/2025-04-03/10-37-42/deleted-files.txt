@@ -1,0 +1,2 @@
+a5fefe8ce0fd38caf3d847ca0c2c946751e9d9b9 112877720 terraform-provider-google_v6.27.0_x5
+f04ad9e64b7a0fcf6d4ace8cafed86206996181e 134 terraform-provider-google_v6.27.0_x5
