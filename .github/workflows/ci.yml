@@ -95,3 +95,13 @@ jobs:
          
       - name: Arrêter Docker Compose après les tests
         run: docker-compose down
+
+     
+
+      - name: Run SonarQube Scanner
+        uses: sonarsource/sonarcloud-github-action@v1.4
+        with:
+          args: >
+            -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
+            -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
