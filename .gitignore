@@ -1,6 +1,7 @@
 frontend/node_modules
 frontend/dist   
 backend/.env
+/terraform/key.json
 .env
 grafana-volume/
 /public/hot
