@@ -1,0 +1,32 @@
+---
+
+- name: Déployer SonarQube sur une VM GCP
+  hosts: sonarqube
+  become: true  # pour exécuter les commandes en tant qu'utilisateur root
+
+  tasks:
+    - name: Vérifier si Docker est installé
+      command: docker --version
+      register: docker_installed
+      ignore_errors: true
+
+    - name: Installer Docker si nécessaire
+      apt:
+        name: docker.io
+        state: present
+      when: docker_installed.rc != 0
+
+    - name: Vérifier si SonarQube est déjà en cours d'exécution
+      command: docker ps --filter "name=sonarqube" --format "{% raw %}{{.Names}}{% endraw %}"
+
+
+      register: sonarqube_running
+      changed_when: false
+
+    - name: Arrêter et supprimer l'ancien conteneur SonarQube si nécessaire
+      command: docker rm -f sonarqube
+      when: sonarqube_running.stdout == "sonarqube"
+
+    - name: Lancer SonarQube en tant que conteneur Docker
+      command: >
+        docker run -d --name sonarqube -p 9000:9000 sonarqube:lts

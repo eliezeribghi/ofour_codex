@@ -86,9 +86,8 @@ resource "google_compute_instance" "server" {
 
   metadata = {
     ssh-keys = <<EOF
-    eliezer:${file("/home/student/.ssh/ansible-ofour.pub")}
-    kevin:${file("/home/student/Bureau/ofour/ssh_codex/sshKevin.pub")}
-    nour:${file("/home/student/Bureau/ofour/ssh_codex/sshNour.pub")}
+   eliezer:${file("../.ssh_codex/sshEliezer.pub")}
+    nour:${file("../.ssh_codex/sshNour.pub")}
     EOF
   }
 }
@@ -115,9 +114,8 @@ resource "google_compute_instance" "ofour-dev" {
 
   metadata = {
     ssh-keys = <<EOF
-    eliezer:${file("/home/student/.ssh/ansible-ofour.pub")}
-    kevin:${file("/home/student/Bureau/ofour/ssh_codex/sshKevin.pub")}
-    nour:${file("/home/student/Bureau/ofour/ssh_codex/sshNour.pub")}
+    eliezer:${file("../.ssh_codex/sshEliezer.pub")}
+    nour:${file("../.ssh_codex/sshNour.pub")}
     EOF
   }
 }
