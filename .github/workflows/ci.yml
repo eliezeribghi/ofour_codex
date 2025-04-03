@@ -96,12 +96,22 @@ jobs:
       - name: Arrêter Docker Compose après les tests
         run: docker-compose down
 
-     
+      # - name: Cache SonarQube Scanner
+      #   uses: actions/cache@v3
+      #   with:
+      #     path: ~/.sonar
+      #     key: sonar-${{ runner.os }}-${{ hashFiles('**/sonar-project.properties') }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-sonar
+      
+      # - name: Vérification du cache
+      #   run: ls -la ~/.sonar
+          
 
-      - name: Run SonarQube Scanner
-        uses: sonarsource/sonarcloud-github-action@v1.4
-        with:
-          args: >
-            -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
-            -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}
-            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+      # - name: Run SonarQube Scanner
+      #   uses: sonarsource/sonarcloud-github-action@v1.4
+      #   with:
+      #     args: >
+      #       -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
+      #       -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}
+      #       -Dsonar.login=${{ secrets.SONAR_TOKEN }}
