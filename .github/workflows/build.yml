@@ -3,29 +3,33 @@ name: Build
 on:
   push:
     branches:
-      - terraform
-
+      - terraform  # Si tu veux qu'il s'exécute sur une branche spécifique, sinon utilise main ou toutes les branches
 
 jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
     steps:
+      # Checkout du code
       - uses: actions/checkout@v2
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+          fetch-depth: 0  # Clonage complet pour avoir un historique complet et une meilleure analyse
+
+      # Configuration de SonarQube
       - uses: sonarsource/sonarqube-scan-action@master
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-      # If you wish to fail your job when the Quality Gate is red, uncomment the
-      # following lines. This would typically be used to fail a deployment.
+        
+      # Cache SonarQube pour améliorer les performances
+      - name: Cache SonarQube
+        uses: actions/cache@v3
+        with:
+          path: ~/.sonar
+          key: sonar-${{ runner.os }}-${{ hashFiles('sonar-project.properties') }}
+          
+      # Qualité de code (optionnel : si tu veux que le job échoue si la qualité de code est mauvaise)
       # - uses: sonarsource/sonarqube-quality-gate-action@master
       #   timeout-minutes: 5
       #   env:
       #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      - name: Cache SonarQube
-        uses: actions/cache@v3
-        with:
-         path: ~/.sonar
-         key: sonar-${{ runner.os }}-${{ hashFiles('**/sonar-project.properties') }}
