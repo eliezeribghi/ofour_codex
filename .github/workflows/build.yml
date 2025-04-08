@@ -28,13 +28,13 @@ jobs:
       - name: SonarQube Scan
         uses: sonarsource/sonarqube-scan-action@master
         with:
-            scannerVersion: 7.1.0.4889
-            scannerBinariesUrl: https://binaries.sonarsource.com/Distribution/sonar-scanner-cli
-            args: >
+          scannerVersion: 7.1.0.4889
+          scannerBinariesUrl: https://binaries.sonarsource.com/Distribution/sonar-scanner-cli
+          args: >
               -Dsonar.sources=backend/app,backend/config,backend/routes,backend/resources,frontend/src
               -Dsonar.inclusions=**/*.php,frontend/src/**/*.js,frontend/src/**/*.svelte
               -Dsonar.exclusions=**/vendor/**,**/storage/**,**/node_modules/**,**/public/**
-              -Dsonar.sourceEncoding=UTF-8
+              -Dsonar.sourceEncoding=UTF-8  
         env:
             SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
             SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
