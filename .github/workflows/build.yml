@@ -11,25 +11,21 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v2
         with:
-          fetch-depth: 0
-      - name: SonarQube Scan
-        uses: sonarsource/sonarqube-scan-action@master
-        with:
-          scannerVersion: 7.1.0.4889
-          scannerBinariesUrl: https://binaries.sonarsource.com/Distribution/sonar-scanner-cli
-          args: >
-            -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
-            -Dsonar.sources=backend/app,backend/config,backend/routes,backend/resources,frontend/src
-            -Dsonar.inclusions=**/*.php,frontend/src/**/*.js,frontend/src/**/*.svelte
-            -Dsonar.exclusions=**/vendor/**,**/storage/**,**/node_modules/**,**/public/**
-            -Dsonar.sourceEncoding=UTF-8
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+      - uses: sonarsource/sonarqube-scan-action@master
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+      # If you wish to fail your job when the Quality Gate is red, uncomment the
+      # following lines. This would typically be used to fail a deployment.
+      # - uses: sonarsource/sonarqube-quality-gate-action@master
+      #   timeout-minutes: 5
+      #   env:
+      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       - name: Cache SonarQube
-        uses: actions/cache@v4
+        uses: actions/cache@v3
         with:
-          path: /home/runner/work/_temp/sonar-scanner-cli-7.1.0.4889-Linux-X64
-          key: sonar-scanner-cli-7.1.0.4889-Linux-X64
+         path: ~/.sonar
+         key: sonar-${{ runner.os }}-${{ secrets.SONAR_PROJECT_KEY }}
