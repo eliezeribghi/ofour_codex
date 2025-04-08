@@ -28,4 +28,4 @@ jobs:
         uses: actions/cache@v3
         with:
          path: ~/.sonar
-         key: sonar-${{ runner.os }}-${{ secrets.SONAR_PROJECT_KEY }}
+         key: sonar-${{ runner.os }}-${{ hashFiles('**/sonar-project.properties') }}
