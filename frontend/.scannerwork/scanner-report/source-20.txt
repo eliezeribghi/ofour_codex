@@ -1,0 +1,99 @@
+// Import css
+@use "../utils/variables" as vars;
+@use "../utils/mixins";
+
+// Déclarations des règles pour la page d'accueil
+.homepage {
+
+
+  background: linear-gradient(to bottom, rgba(204, 34, 34, 0.4), vars.$background-color),
+    url("/home.png") center/cover no-repeat;
+
+  header {
+    left: 0;
+  right: 0;
+    flex-direction: row-reverse;
+
+    .home-link-logo {
+      display: none;
+    }
+
+    .menu-button {
+      background: url("/icons/menu-icon-white.png") center/cover;
+
+      &--close {
+        background: url("/icons/menu-icon-close.png") center/cover;
+        align-self: flex-end;
+      }
+    }
+  }
+
+  main {
+    .img_header {
+        background-image: url('/home.png');
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-position: center; /* Assurez-vous que l'image est centrée */
+        position: relative; /* Nécessaire pour positionner les éléments enfants */
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: -10;
+        &::before{
+          content: "";
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: #ffffff84;
+          z-index: 1;
+      }
+        &__logo-background-image {
+            background-image: url("/logo-backgound-home.png");
+            background-repeat: no-repeat;
+            background-size: contain; /* Ajustez selon vos besoins */
+            background-position: center;
+            position: absolute; /* Positionner par rapport au conteneur parent */
+            top: 50%; /* Ajustez pour positionner l'image */
+            left: 50%; /* Ajustez pour positionner l'image */
+            transform: translate(-50%, -50%); /* Centrer l'image */
+            width: 50%; /* Ajustez la largeur selon vos besoins */
+            height: 50%; /* Ajustez la hauteur automatiquement */
+            z-index: 100;
+        }
+    }
+}
+
+}
+
+// Media queries
+
+// TABLETTE
+@include mixins.tablet {
+  .homepage {
+    main {
+      .brand__logo {
+        width: 30%;
+      }
+    }
+  }
+}
+
+// DESKTOP
+@include mixins.desktop {
+  .homepage {
+
+
+    main {
+      .brand {
+        width: 100%;
+        /* Vos styles pour la section de la marque */
+      }
+      .brand__logo {
+        width: 300%;
+      }
+    }
+  }
+}

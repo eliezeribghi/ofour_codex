@@ -1,0 +1,1 @@
+* 2phpXBhrbackend/config/sanctum.php

@@ -1,0 +1,27 @@
+// $primary: #937046;
+// $primary-light: #ebdeca;
+// $primary-lighter: #d1e5e1;
+// $secondary: #8b8b8b;
+// $secondary-light: #f6f5f3;
+// $light: #ffffff;
+
+// variables.scss
+
+// Couleurs principales
+$background-color: #d8dad1;  // Fond
+$primary-color: #4a2a16;     // Titres principaux (h1)
+$secondary-color: #d4942c;   // Sous-titres (h2, h3)
+$accent-color: #e8c477;      // Boutons, éléments interactifs
+$text-color: #ab8765;        // Texte principal
+$border-color: #8c522a;      // Bordures et accents
+
+// Font settings
+$font-family: 'Roboto', sans-serif;
+$font-size-base: 16px;
+
+
+// Media-queries
+
+$mobile: 425px;
+$tablet: 768px;
+$desktop: 1024px;

@@ -1,33 +1,44 @@
 name: Build
-
 on:
   push:
     branches:
-      - terraform  # Si tu veux qu'il s'exécute sur une branche spécifique, sinon utilise main ou toutes les branches
-
+      - terraform
 jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
     steps:
-      # Checkout du code
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Clonage complet pour avoir un historique complet et une meilleure analyse
-
-      # Configuration de SonarQube
-      - uses: sonarsource/sonarqube-scan-action@master
+          fetch-depth: 0
+      - name: SonarQube Scan
+        uses: sonarsource/sonarqube-scan-action@master
+        with:
+          scannerVersion: 7.1.0.4889
+          scannerBinariesUrl: https://binaries.sonarsource.com/Distribution/sonar-scanner-cli
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-        
-      # Cache SonarQube pour améliorer les performances
+          SONAR_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY }}  # Ajouté ici
       - name: Cache SonarQube
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
-          path: ~/.sonar
-          key: sonar-${{ runner.os }}-${{ hashFiles('sonar-project.properties') }}
-          
+          path: /home/runner/work/_temp/sonar-scanner-cli-7.1.0.4889-Linux-X64
+          key: sonar-scanner-cli-7.1.0.4889-Linux-X64
+      - name: SonarQube Scan
+        uses: sonarsource/sonarqube-scan-action@master
+        with:
+            scannerVersion: 7.1.0.4889
+            scannerBinariesUrl: https://binaries.sonarsource.com/Distribution/sonar-scanner-cli
+            args: >
+              -Dsonar.sources=backend/app,backend/config,backend/routes,backend/resources,frontend/src
+              -Dsonar.inclusions=**/*.php,frontend/src/**/*.js,frontend/src/**/*.svelte
+              -Dsonar.exclusions=**/vendor/**,**/storage/**,**/node_modules/**,**/public/**
+              -Dsonar.sourceEncoding=UTF-8
+        env:
+            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+            SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+            SONAR_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY }}
       # Qualité de code (optionnel : si tu veux que le job échoue si la qualité de code est mauvaise)
       # - uses: sonarsource/sonarqube-quality-gate-action@master
       #   timeout-minutes: 5

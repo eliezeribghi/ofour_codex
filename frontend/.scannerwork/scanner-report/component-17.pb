@@ -1,0 +1,1 @@
+ 2cssXŠhrsrc/style/components/_card.scss

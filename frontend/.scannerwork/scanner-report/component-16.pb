@@ -1,0 +1,1 @@
+ 2cssX,hr src/style/components/_edito.scss
