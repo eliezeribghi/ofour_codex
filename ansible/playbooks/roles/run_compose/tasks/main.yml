@@ -10,12 +10,12 @@
     
 - name: Tear down existing services
   community.docker.docker_compose_v2:
-    project_src: codex
+    project_src: /opt/codex-prod
     state: absent
 
 - name: Create and start services
   community.docker.docker_compose_v2:
-    project_src: codex
+    project_src: /opt/codex-prod
   register: output
 
 - name: Show results
