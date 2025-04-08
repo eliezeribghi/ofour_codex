@@ -1,8 +1,11 @@
 name: Build
+
 on:
   push:
     branches:
       - terraform
+
+
 jobs:
   build:
     name: Build
@@ -30,8 +33,3 @@ jobs:
         with:
           path: /home/runner/work/_temp/sonar-scanner-cli-7.1.0.4889-Linux-X64
           key: sonar-scanner-cli-7.1.0.4889-Linux-X64
-      # Qualité de code (optionnel : si tu veux que le job échoue si la qualité de code est mauvaise)
-      # - uses: sonarsource/sonarqube-quality-gate-action@master
-      #   timeout-minutes: 5
-      #   env:
-      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
