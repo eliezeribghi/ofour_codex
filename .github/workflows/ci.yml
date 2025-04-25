@@ -92,7 +92,7 @@ jobs:
                echo "Recette récupérée : $RECETTE"
              fi
          
-         
+         nbj
       - name: Arrêter Docker Compose après les tests
         run: docker-compose down
 
