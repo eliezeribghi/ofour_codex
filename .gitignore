@@ -22,3 +22,4 @@ codex-prod
 ansible/env_ansible
 frontend/.env
 secrets.yml
+comp
