@@ -1,0 +1,7 @@
+- name: Add  domaine name for the server
+  ansible.builtin.lineinfile:
+    path: /etc/hosts
+    line: 34.28.178.34 ofour.work.gd
+    owner: root
+    group: root
+    mode: '0644'
