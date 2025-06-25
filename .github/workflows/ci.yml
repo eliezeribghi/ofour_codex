@@ -95,6 +95,15 @@ jobs:
       - name: Lancer les migrations Laravel
         run: |
           docker exec backend_container php artisan migrate --force
+      - name: Préparer le .env de CI avec les secrets
+        env:
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        run: |
+          cp backend/.env.ci backend/.env.ci.tmp
+          sed -i "s|\${DB_USERNAME}|$DB_USERNAME|g" backend/.env.ci.tmp
+          sed -i "s|\${DB_PASSWORD}|$DB_PASSWORD|g" backend/.env.ci.tmp
+          docker cp backend/.env.ci.tmp backend_container:/var/www/html/.env
 
       - name: Exécuter les tests Laravel
         run: |
