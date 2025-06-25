@@ -26,6 +26,7 @@ jobs:
         run: |
           cd frontend
           npx eslint "src/**/*.{js,svelte}" -f node_modules/@microsoft/eslint-formatter-sarif/sarif.js -o results.sarif || true
+          
       - name: Upload SARIF
         uses: github/codeql-action/upload-sarif@v3
         with:
