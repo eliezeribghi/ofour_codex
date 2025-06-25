@@ -92,7 +92,10 @@ jobs:
                  echo "$ligne"
                done
              fi
-
+      - name: Lancer les migrations Laravel
+        run: |
+          docker exec backend_container php artisan migrate --force
+          
       - name: Exécuter les tests Laravel
         run: |
                 docker exec backend_container php artisan test
