@@ -58,7 +58,7 @@ jobs:
 
       - name: lancer le frontend
         run: |
-          docker exec frontend_container npm run dev 
+          docker exec -d frontend_container npm run dev 
 
           
       - name: Tester `php artisan serve` à l'intérieur du conteneur backend
