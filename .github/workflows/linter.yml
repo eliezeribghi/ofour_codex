@@ -12,7 +12,6 @@ permissions:
   contents: read
   security-events: write
 
-
 jobs:
   lint:
     runs-on: ubuntu-latest
