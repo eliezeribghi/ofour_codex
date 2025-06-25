@@ -97,15 +97,16 @@ jobs:
           docker exec backend_container php artisan migrate --force
 
       - name: Exécuter les tests Laravel
-        env:
-          DB_CONNECTION: mysql
-          DB_HOST: mysql_db
-          DB_PORT: 3306
-          DB_DATABASE: ofour
-          DB_USERNAME: ${{ secrets.DB_USERNAME }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         run: |
-          docker exec backend_container php artisan test
+          docker exec \
+            -e DB_CONNECTION=mysql \
+            -e DB_HOST=mysql_db \
+            -e DB_PORT=3306 \
+            -e DB_DATABASE=ofour \
+            -e DB_USERNAME=${{ secrets.DB_USERNAME }} \
+            -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+            backend_container php artisan test
+
 
 
       - name: test
