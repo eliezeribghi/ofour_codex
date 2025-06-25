@@ -1,5 +1,6 @@
 <script lang="ts">
   import { link } from "svelte-spa-router";
+  export { link }; 
 
   // Fonction pour afficher le menu en mobile
   function displayMenu() {
@@ -21,7 +22,9 @@
     class="home-link-logo"
     aria-label="Aller à la page d'accueil"
     use:link
-  ></a>
+  >
+    <img src="/header-logo.png" alt="Accueil" />
+  </a>
 
   <!-- Le bouton n'est visible qu'au format mobile & tablette -->
   <button
