@@ -80,7 +80,6 @@
             <span>{recette.niveau_difficulte}</span>
           </li>
         </ul>
-        
       </div>
       <button
         on:click={() => getRecetteDetails(recette.id)}
@@ -112,9 +111,9 @@
           Capacité : <!-- Ajouter le bon champ pour la capacité ici si nécessaire -->
         </li>
         <li>
-         <h3>   Ingrédients ; </h3>
+         <h3>Ingrédients :</h3>
           <ul>
-            {#each selectedRecette.recette_ingredients as recette_ingredient}
+            {#each selectedRecette.recette_ingredients as recette_ingredient, i (recette_ingredient.ingredient.id || i)}
               <li>
                 {recette_ingredient.ingredient.nom} : {recette_ingredient.quantite}
               </li>
@@ -124,7 +123,7 @@
           {#if selectedRecette.etapes_preparation}
             <h3>Étapes de préparation :</h3>
             <ol>
-              {#each selectedRecette.etapes_preparation as etape, index}
+              {#each selectedRecette.etapes_preparation as etape, index (etape.id || index)}
                 <li>Étape {index + 1}: {etape.description_etape}</li>
               {/each}
             </ol>
