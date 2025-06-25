@@ -109,7 +109,7 @@ jobs:
       - name: Arrêter Docker Compose après les tests
         run: docker-compose down
 
-
+# Uncomment the following lines if you want to use MySQL and Adminer in your CI workflow
          
  
 
