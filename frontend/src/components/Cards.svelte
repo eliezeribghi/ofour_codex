@@ -5,6 +5,7 @@
   let selectedRecette = null; // Variable pour stocker la recette sélectionnée
   let showModal = false;
   let scrollY = 0; // Pour sauvegarder la position du scroll
+  $: recettesAffichees = recettes.slice(0, 4);
 
   // Fonction pour ouvrir la modale et sauvegarder la position du scroll
   function openModal() {
@@ -59,7 +60,7 @@
 </script>
 
 <div class="theme-cards-container">
-  {#each recettes.splice(0, 4) as recette (recette.id)}
+  {#each recettesAffichees as recette (recette.id)}
     <article
       class="theme-card"
       style="background: url({recette.image_url}) center/cover no-repeat"
