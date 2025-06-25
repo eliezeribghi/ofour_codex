@@ -66,7 +66,8 @@
     </button>
 
     <ul id="main-menu" role="menu" aria-labelledby="menubutton">
-      {#each menuItems as item, index (item.href)}
+      {#each menuItems as item, index (item.href)} <!-- eslint-disable-line -->
+
         <li role="menuitem">
           <a
             href={item.href}
