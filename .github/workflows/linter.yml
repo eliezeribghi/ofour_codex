@@ -10,6 +10,8 @@ on:
 permissions:
   actions: write
   contents: read
+  security-events: write
+
 
 jobs:
   lint:
