@@ -5,37 +5,28 @@ on:
     branches:
       - linter
       - github-actions
-  schedule:
-    - cron: '45 15 * * 3' # Every Wednesday at 15:45 UTC
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:
-      security-events: write
-      actions: read
-      contents: read
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Installer les dépendances frontend
         run: |
           cd frontend
           npm install
+
       - name: Lister le contenu de frontend/src
         run: |
           ls -l frontend/src
-        
+
       - name: Lancer ESLint sur src/
         run: |
           cd frontend
           npx eslint src --ext .js,.ts,.svelte -f node_modules/@microsoft/eslint-formatter-sarif/sarif.js -o ../results.sarif || true
           echo "Code retour ESLint : $?"
           ls -l ../results.sarif || echo "Pas de fichier SARIF généré"
-
-         
-      - name: Vérifier la présence du fichier SARIF
-        run: ls -l results.sarif
 
       - uses: github/codeql-action/upload-sarif@v3
         with:
