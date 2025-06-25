@@ -1,20 +1,25 @@
 <script lang="ts">
   import { link } from "svelte-spa-router";
-  export { link }; 
+  export { link };
 
   // Fonction pour afficher le menu en mobile
   function displayMenu() {
-    const navMenu = document.querySelector(".nav-menu") as HTMLElement;
-    navMenu.style.display = "flex";
-    navMenu.style.left = "0";
+    const navMenu = document.querySelector(".nav-menu") as HTMLElement | null;
+    if (navMenu) {
+      navMenu.style.display = "flex";
+      navMenu.style.left = "0";
+    }
   }
 
   // Masquer le menu en mobile
   function hideMenu() {
-    const navMenu = document.querySelector(".nav-menu") as HTMLElement;
-    navMenu.style.display = "none";
+    const navMenu = document.querySelector(".nav-menu") as HTMLElement | null;
+    if (navMenu) {
+      navMenu.style.display = "none";
+    }
   }
 </script>
+
 
 <header>
   <a
