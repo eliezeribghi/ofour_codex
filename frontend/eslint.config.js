@@ -4,9 +4,10 @@ import svelteParser from "svelte-eslint-parser";
 import globals from "globals";
 
 export default [
+  // L'ignorer tout en haut, tout seul
   {
     ignores: [
-      "src/components/Header.svelte" // <-- ignore ce fichier partout
+      "src/components/Header.svelte"
     ]
   },
   js.configs.recommended,
