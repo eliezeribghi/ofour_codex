@@ -67,7 +67,8 @@
 
     <!-- Bloc each CORRIGÉ -->
     <ul id="main-menu" role="menu" aria-labelledby="menubutton">
-      {#each menuItems as item, index}
+      {#each menuItems as item, index (item.href)}
+
         <li role="menuitem">
           <a
             href={item.href}
