@@ -22,4 +22,3 @@ yarn-error.log
 /.vscode
 ssh_codex
 /.github/workflows/.env.ci
-backend/.env.ci
