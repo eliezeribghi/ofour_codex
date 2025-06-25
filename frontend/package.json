@@ -11,6 +11,7 @@
     "test": "echo 'No tests specified' && exit 0"
   },
   "devDependencies": {
+    "@microsoft/eslint-formatter-sarif": "^3.1.0",
     "@sveltejs/vite-plugin-svelte": "^5.0.3",
     "@types/estree": "^1.0.6",
     "@typescript-eslint/eslint-plugin": "^8.35.0",
