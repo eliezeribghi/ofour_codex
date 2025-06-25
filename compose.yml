@@ -5,8 +5,6 @@ services:
     restart: always
     ports:
       - "5173:5173"
-    volumes:
-      - ./frontend:/app
     networks:
       - front-network
     depends_on:

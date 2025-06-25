@@ -1,26 +1,26 @@
 # Étape 1 : Construction du frontend
-FROM node:23-alpine 
+FROM node:23-alpine
 
-# Définir le répertoire de travail
 WORKDIR /app
 
 # Copier les fichiers package.json et package-lock.json
-COPY package*.json  .
+COPY package*.json ./
 
-# Installer les dépendances
 RUN npm install
 
-# Copier le code source du frontend
+# Copier tout le code source
 COPY . .
 
-
-# Construire l'application
+# (Optionnel) Build pour la prod
 RUN npm run build
-RUN ls -l /app/src
 
 EXPOSE 5173
 
+# Pour le dev
 CMD ["npm", "run", "dev"]
+# Pour la prod (remplacer la ligne précédente)
+# CMD ["npm", "run", "preview"]
+
 # Étape 2 : Serveur Nginx pour servir les fichiers statiques
 #FROM nginx:alpine
 
