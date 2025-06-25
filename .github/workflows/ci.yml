@@ -5,7 +5,7 @@ on:
   workflow_dispatch:  # Déclenchement manuel via GitHub avec des inputs
     inputs:
       version:
-        description: 'Nom de la branche à déployer'  # Description de l'input
+        description: 'github-actions'  # Description de l'input
         required: true  # Cet input est obligatoire
         default: 'latest'  # Valeur par défaut si l'utilisateur ne fournit rien
       
@@ -68,7 +68,7 @@ jobs:
       - name: Exécuter les tests Laravel
         run: |
           docker exec backend_container php artisan test
-          
+
       - name: Récupérer l'IP publique
         run: |
          STATUS_CODE=0
@@ -100,8 +100,6 @@ jobs:
       - name: test
         run: | 
                    curl http://127.0.0.1:8000/api/recettes/1
-
-
       - name: Arrêter Docker Compose après les tests
         run: docker-compose down
          

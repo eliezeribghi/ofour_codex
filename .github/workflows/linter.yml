@@ -18,16 +18,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install frontend dependencies
+      - name: Installer les dépendances frontend
         run: |
           cd frontend
           npm install
 
-      - name: Run ESLint
+      - name: Lancer ESLint sur src/
         run: |
           cd frontend
-          npx eslint build docs lib script spec-main -f node_modules/@microsoft/eslint-formatter-sarif/sarif.js -o results.sarif || true
+          npx eslint src --ext .js,.ts,.svelte -f node_modules/@microsoft/eslint-formatter-sarif/sarif.js -o ../results.sarif || true
+
+      - name: Vérifier la présence du fichier SARIF
+        run: ls -l results.sarif
 
       - uses: github/codeql-action/upload-sarif@v3
         with:
-          sarif_file: frontend/results.sarif
+          sarif_file: results.sarif
