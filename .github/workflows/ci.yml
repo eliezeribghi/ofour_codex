@@ -95,10 +95,18 @@ jobs:
       - name: Lancer les migrations Laravel
         run: |
           docker exec backend_container php artisan migrate --force
-          
+
       - name: Exécuter les tests Laravel
+        env:
+          DB_CONNECTION: mysql
+          DB_HOST: mysql_db
+          DB_PORT: 3306
+          DB_DATABASE: ofour
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         run: |
-                docker exec backend_container php artisan test
+          docker exec backend_container php artisan test
+
 
       - name: test
         run: | 
