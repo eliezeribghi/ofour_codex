@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\DB;
 
 class RecetteController extends Controller
 {
-    
+
     /**
      * Affiche la liste des recettes.
      *
@@ -96,7 +96,7 @@ class RecetteController extends Controller
 
         //  1. Initialiser Google Cloud Storage
         $storage = new StorageClient([
-            'keyFilePath' => storage_path('app/ofour-452518-5f81cd2295eb'), // Chemin vers la clé JSON
+            'keyFilePath' => storage_path('app/ofour-codes-5f81cd2295eb'), // Chemin vers la clé JSON
         ]);
         $bucketName = 'bucket_oufour'; // Remplace par le nom de ton bucket
         $bucket = $storage->bucket($bucketName);

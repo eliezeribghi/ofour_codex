@@ -10,34 +10,22 @@ on:
 permissions:
   actions: write
   contents: read
+  security-events: write
 
 jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Installer les dépendances
+      - name: Installer dépendances
         run: |
           cd frontend
           npm ci
-
-      - name: Lancer ESLint (console)
-        run: |
-          cd frontend
-          npx eslint "src/**/*.{js,svelte}" --format stylish
-
-      # Générer un rapport SARIF pour code scanning
-      - name: Lancer ESLint (SARIF)
+      - name: Générer SARIF
         run: |
           cd frontend
           npx eslint "src/**/*.{js,svelte}" -f node_modules/@microsoft/eslint-formatter-sarif/sarif.js -o results.sarif || true
-
-      - name: Vérifier la présence du fichier SARIF
-        run: |
-          ls -l frontend/results.sarif || echo "Pas de fichier SARIF généré"
-
-      - name: Upload SARIF to GitHub
+      - name: Upload SARIF
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: frontend/results.sarif

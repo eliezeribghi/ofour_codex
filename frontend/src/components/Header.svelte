@@ -1,17 +1,28 @@
 <script lang="ts">
   import { link } from "svelte-spa-router";
+  export { link };
+
+  // Exemple de tableau pour le menu
+  const menuItems = [
+    { href: "/", label: "Accueil", aria: "Page d'accueil du site" },
+    { href: "/recette", label: "Recette", aria: "Découvrez nos recettes" }
+  ];
 
   // Fonction pour afficher le menu en mobile
   function displayMenu() {
-    const navMenu = document.querySelector(".nav-menu") as HTMLElement;
-    navMenu.style.display = "flex";
-    navMenu.style.left = "0";
+    const navMenu = document.querySelector(".nav-menu") as HTMLElement | null;
+    if (navMenu) {
+      navMenu.style.display = "flex";
+      navMenu.style.left = "0";
+    }
   }
 
   // Masquer le menu en mobile
   function hideMenu() {
-    const navMenu = document.querySelector(".nav-menu") as HTMLElement;
-    navMenu.style.display = "none";
+    const navMenu = document.querySelector(".nav-menu") as HTMLElement | null;
+    if (navMenu) {
+      navMenu.style.display = "none";
+    }
   }
 </script>
 
@@ -21,7 +32,9 @@
     class="home-link-logo"
     aria-label="Aller à la page d'accueil"
     use:link
-  ></a>
+  >
+    <img src="/header-logo.png" alt="Accueil" />
+  </a>
 
   <!-- Le bouton n'est visible qu'au format mobile & tablette -->
   <button
@@ -52,30 +65,21 @@
       Fermer
     </button>
 
-    <!-- Notre liste comprenant notre menu -->
     <ul id="main-menu" role="menu" aria-labelledby="menubutton">
-      <li role="menuitem">
-        <a
-          href="/"
-          class="nav-menu__link"
-          aria-label="Page d'accueil du site"
-          on:click={hideMenu}
-          use:link
-        >
-          Accueil
-        </a>
-      </li>
-      <li role="menuitem">
-        <a
-          href="/recette"
-          class="nav-menu__link"
-          aria-label="Découvrez nos recettes"
-          on:click={hideMenu}
-          use:link
-        >
-          Recette
-        </a>
-      </li>
+      {#each menuItems as item, index (item.href)} <!-- eslint-disable-line -->
+
+        <li role="menuitem">
+          <a
+            href={item.href}
+            class="nav-menu__link"
+            aria-label={item.aria}
+            on:click={hideMenu}
+            use:link
+          >
+            {item.label}
+          </a>
+        </li>
+      {/each}
     </ul>
     <img
       class="menu-logo"
@@ -84,3 +88,4 @@
     />
   </nav>
 </header>
+

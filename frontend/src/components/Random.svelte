@@ -10,9 +10,9 @@
     try {
       const response = await fetch(`http://localhost:8000/api/recettes/`);
 
-    if (response.ok) {
-  recettes = await response.json();
-  console.log("Données reçues de l'API : ", recettes);
+      if (response.ok) {
+        recettes = await response.json();
+        console.log("Données reçues de l'API : ", recettes);
 
         // Sélectionner une recette aléatoire
         recetteAleatoire =
@@ -30,13 +30,12 @@
     getCardData();
   });
 </script>
+
 {#if recetteAleatoire}
   <section class="random-recipe">
     <h1>{recetteAleatoire.titre}</h1>
-   
-
     <h3>{recetteAleatoire.contenu}</h3>
- <img 
+    <img 
       class="random-recipe-img-header"
       src={recetteAleatoire.image_url}
       alt={recetteAleatoire.titre}
@@ -68,21 +67,19 @@
 
       <h2>Ingrédients</h2>
       <ul>
-        {#each recetteAleatoire.ingredients as ingredient}
+        {#each recetteAleatoire.ingredients as ingredient, i (ingredient.id || i)}
           <li>{ingredient.nom} : {ingredient.pivot.quantite}</li>
         {/each}
       </ul>
 
       {#if recetteAleatoire.etapes_preparation && recetteAleatoire.etapes_preparation.length > 0}
-      <h3>Étapes de préparation :</h3>
-      <ol>
-        {#each recetteAleatoire.etapes_preparation as etape, index}
-          <li>Étape {index + 1}: {etape.description_etape}</li>
-        {/each}
-      </ol>
-    {/if}
-    
-  
+        <h3>Étapes de préparation :</h3>
+        <ol>
+          {#each recetteAleatoire.etapes_preparation as etape, index (etape.id || index)}
+            <li>Étape {index + 1}: {etape.description_etape}</li>
+          {/each}
+        </ol>
+      {/if}
     </section>
   </section>
 {:else}

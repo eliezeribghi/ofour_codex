@@ -25,18 +25,17 @@
 
   // Filtrer les recettes selon la recherche et le type sélectionné
   $: filteredRecettes = recettes.filter((recette) => {
-  const matchesSearch = recette.titre
-    .toLowerCase()
-    .includes(searchQuery.toLowerCase());
+    const matchesSearch = recette.titre
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase());
 
-  const matchesType = recetteType === "all" || (recette.categorie && recette.categorie.nom === recetteType);
-  
-  console.log('Recette:', recette);
-  console.log('matchesType:', matchesType);
+    const matchesType = recetteType === "all" || (recette.categorie && recette.categorie.nom === recetteType);
+    
+    // console.log('Recette:', recette);
+    // console.log('matchesType:', matchesType);
 
-  return matchesSearch && matchesType;
-});
-
+    return matchesSearch && matchesType;
+  });
 
   onMount(getAllRecettes);
 
@@ -70,35 +69,30 @@
 
 <!-- Barre de recherche -->
 <input
-class="input-seach"
+  class="input-seach"
   type="text"
   placeholder="Rechercher une recette..."
   bind:value={searchQuery}
 />
 
-
 <!-- Radio buttons pour choisir le type de recette -->
 <section class="section-select-radio">
-  <h2 >Catégorie sélectionnée  :</h2>
-  <span class="">
-  <div>
-    <input id="all" type="radio" bind:group={recetteType} value="all" />
-    <label for="all">Toutes</label>
-  </div>
-  <div>
-    <input id="dessert" type="radio" bind:group={recetteType} value="Desserts" />
-    <label for="dessert">Desserts</label>
-  </div>
-  <div>
-    <input id="plat" type="radio" bind:group={recetteType} value="Plats principaux" />
-    <label for="plat">Plats principaux</label>
-  </div>
-</span>
+  <h2>Catégorie sélectionnée  :</h2>
+  <span>
+    <div>
+      <input id="all" type="radio" bind:group={recetteType} value="all" />
+      <label for="all">Toutes</label>
+    </div>
+    <div>
+      <input id="dessert" type="radio" bind:group={recetteType} value="Desserts" />
+      <label for="dessert">Desserts</label>
+    </div>
+    <div>
+      <input id="plat" type="radio" bind:group={recetteType} value="Plats principaux" />
+      <label for="plat">Plats principaux</label>
+    </div>
+  </span>
 </section>
-
-
-<!-- Radio buttons avec liaison -->
-
 
 <!-- Afficher les recettes filtrées -->
 <div class="theme-cards-container">
@@ -111,7 +105,7 @@ class="input-seach"
         <ul class="theme-card__infos-list">
           <li class="theme-card__infos-elt">
             <img src="../public/icons/icons8-horloge-50.png" alt="Temps" />
-           <span> {recette.temps_cuisson} minutes </span >
+            <span>{recette.temps_cuisson} minutes</span>
           </li>
           <li class="theme-card__infos-elt">
             <img src="../public/icons/icons8-marmite-64.png" alt="Capacité" />
@@ -153,29 +147,23 @@ class="input-seach"
         <li>Difficulté : {selectedRecette.niveau_difficulte}</li>
         <li>Catégorie : {selectedRecette.categorie.nom}</li>
         <li>
-          Ingrédients ;
+          Ingrédients :
           <ul>
-            {#each selectedRecette.recette_ingredients as recette_ingredient}
+            {#each selectedRecette.recette_ingredients as recette_ingredient, i (recette_ingredient.ingredient.id || i)}
               <li>{recette_ingredient.ingredient.nom}  : {recette_ingredient.quantite}</li>
             {/each}
           </ul>
-            <!-- Affichage des étapes de préparation -->
-      {#if selectedRecette.etapes_preparation}
-      <h3>Étapes de préparation :</h3>
-      <ol>
-        {#each selectedRecette.etapes_preparation as etape, index}
-          <li>Étape {index + 1}: {etape.description_etape}</li>
-        {/each}
-      </ol>
-    {/if}
-  
+          <!-- Affichage des étapes de préparation -->
+          {#if selectedRecette.etapes_preparation}
+            <h3>Étapes de préparation :</h3>
+            <ol>
+              {#each selectedRecette.etapes_preparation as etape, index (etape.id || index)}
+                <li>Étape {index + 1}: {etape.description_etape}</li>
+              {/each}
+            </ol>
+          {/if}
         </li>
       </ul>
     </article>
   {/if}
 </Modal>
-
-<style>
-
-
-</style>

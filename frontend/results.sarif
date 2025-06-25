@@ -1,0 +1,74 @@
+{
+  "version": "2.1.0",
+  "$schema": "http://json.schemastore.org/sarif-2.1.0-rtm.5",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "ESLint",
+          "informationUri": "https://eslint.org",
+          "rules": [],
+          "version": "9.29.0"
+        }
+      },
+      "artifacts": [
+        {
+          "location": {
+            "uri": "file:///Users/eliezeribghi/Desktop/layer2/ofour_codex/frontend/src/App.svelte"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///Users/eliezeribghi/Desktop/layer2/ofour_codex/frontend/src/components/Cards.svelte"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///Users/eliezeribghi/Desktop/layer2/ofour_codex/frontend/src/components/Edito.svelte"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///Users/eliezeribghi/Desktop/layer2/ofour_codex/frontend/src/components/Footer.svelte"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///Users/eliezeribghi/Desktop/layer2/ofour_codex/frontend/src/components/Modal.svelte"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///Users/eliezeribghi/Desktop/layer2/ofour_codex/frontend/src/components/Random.svelte"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///Users/eliezeribghi/Desktop/layer2/ofour_codex/frontend/src/main.js"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///Users/eliezeribghi/Desktop/layer2/ofour_codex/frontend/src/pages/Home.svelte"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///Users/eliezeribghi/Desktop/layer2/ofour_codex/frontend/src/pages/NotFound.svelte"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///Users/eliezeribghi/Desktop/layer2/ofour_codex/frontend/src/pages/Recette.svelte"
+          }
+        },
+        {
+          "location": {
+            "uri": "file:///Users/eliezeribghi/Desktop/layer2/ofour_codex/frontend/src/routes.js"
+          }
+        }
+      ],
+      "results": []
+    }
+  ]
+}

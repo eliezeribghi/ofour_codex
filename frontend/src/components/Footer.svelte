@@ -1,7 +1,5 @@
-
 <script>
-    import { link } from "svelte-spa-router";
-
+  // Import supprimé car 'link' n'est pas utilisé
 </script>
 
 <footer class="footer-grid">
@@ -13,7 +11,6 @@
     </form>
   </section>
 
- 
   <section class="contact-section">
     <a href="lien5.html">A Propos</a>
     <p>Explorez notre collection de recettes alléchantes, conçues pour tous les niveaux de cuisiniers. Des plats simples aux délices complexes, trouvez l'inspiration pour chaque repas. 🍳🌶️</p>
@@ -32,9 +29,9 @@
       <li><strong>Numéro de Téléphone :</strong> +33 1 23 45 67 89</li>
       <li><strong>Adresse E-mail :</strong> <a href="mailto:contact@votreentreprise.com">contact@votreentreprise.com</a></li>
       <li><strong>Adresse :</strong> 1 Rue de la République, 75001 Paris, France</li>
-  </ul>
+    </ul>
   </section>
 </footer>
-  <section class="copyright-section">
-    <p>O'Four - Tous droits réservés</p>
-  </section>
+<section class="copyright-section">
+  <p>O'Four - Tous droits réservés</p>
+</section>
