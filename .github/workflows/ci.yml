@@ -65,10 +65,7 @@ jobs:
         run: |
           docker exec backend_container php artisan serve & sleep 5
 
-      - name: Exécuter les tests Laravel
-        run: |
-          docker exec backend_container php artisan test
-
+      
       - name: Récupérer l'IP publique
         run: |
          STATUS_CODE=0
@@ -96,6 +93,9 @@ jobs:
                done
              fi
 
+      - name: Exécuter les tests Laravel
+        run: |
+                docker exec backend_container php artisan test
 
       - name: test
         run: | 
