@@ -4,6 +4,11 @@ import svelteParser from "svelte-eslint-parser";
 import globals from "globals";
 
 export default [
+  {
+    ignores: [
+      "src/components/Header.svelte" // <-- ignore ce fichier partout
+    ]
+  },
   js.configs.recommended,
   ...svelte.configs.recommended,
   {
@@ -31,4 +36,3 @@ export default [
     }
   }
 ];
-

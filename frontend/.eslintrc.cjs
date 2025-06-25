@@ -1,9 +1,7 @@
 module.exports = {
   root: true,
   plugins: ['svelte'],
-  ignores: [
-      "src/components/Header.svelte" // <-- ignore ce fichier
-    ],
+  
 
   overrides: [
     {
