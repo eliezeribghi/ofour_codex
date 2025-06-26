@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - Trivy
+      - github-actions
   pull_request:
 jobs:
   build:
