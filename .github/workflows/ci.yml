@@ -59,13 +59,18 @@ jobs:
           sed -i "s|\${DB_PASSWORD}|$DB_PASSWORD|g" backend/.env.ci.tmp
           docker cp backend/.env.ci.tmp backend_container:/var/www/html/.env
 
-      - name: lancer le frontend
+      - name: Tester le frontend avec `npm run dev` à l'intérieur du conteneur frontend
         run: |
-          docker exec -d frontend_container npm run dev 
+          docker exec -d frontend_container npm run dev & sleep 5
 
       - name: Tester `php artisan serve` à l'intérieur du conteneur backend
         run: |
           docker exec backend_container php artisan serve & sleep 5
+
+      - name: Tester la base de données MySQL
+        run: |
+          docker exec -d mysql_db
+      
 
       - name: Récupérer l'IP publique
         run: |
@@ -84,7 +89,7 @@ jobs:
           DB_USERNAME: ${{ secrets.DB_USERNAME }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         run: |
-             RECETTE=$(docker exec mysql_db mysql -u $DB_USERNAME -p$DB_PASSWORD -D "ofour" -e "SELECT * FROM recettes WHERE id = 1;" -s -N)
+             RECETTE=$(MYSQL_PWD=$DB_PASSWORD docker exec mysql_db mysql -u $DB_USERNAME -D "ofour" -e "SELECT * FROM recettes WHERE id = 1;" -s -N)
              if [ -z "$RECETTE" ]; then
                echo "Aucune recette trouvée avec cet ID."
              else
