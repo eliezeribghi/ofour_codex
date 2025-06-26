@@ -69,7 +69,7 @@ jobs:
 
       - name: Tester la base de données MySQL
         run: |
-          docker exec -d mysql_db
+          docker exec -d mysql_db mysql -u ${{ secrets.DB_USERNAME }} -p${{ secrets.DB_PASSWORD }} -e "CREATE DATABASE IF NOT EXISTS ofour;"
       
 
       - name: Récupérer l'IP publique
