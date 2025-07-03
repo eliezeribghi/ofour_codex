@@ -1,0 +1,31 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: certbot
+spec:
+  template:
+    spec:
+      containers:
+      - name: certbot
+        image: certbot/certbot:latest
+        command:
+        - "certbot"
+        - "certonly"
+        - "--webroot"
+        - "--webroot-path=/var/www/certbot"
+        - "--email=iibgui@gmail.com"
+        - "--agree-tos"
+        - "--no-eff-email"
+        - "-d"
+        - "ofour.link"
+        volumeMounts:
+        - name: certbot-www
+          mountPath: /var/www/certbot
+        - name: certbot-conf
+          mountPath: /etc/letsencrypt
+      restartPolicy: Never
+      volumes:
+      - name: certbot-www
+        emptyDir: {}
+      - name: certbot-conf
+        emptyDir: {}

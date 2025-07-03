@@ -1,0 +1,11 @@
+# vars/main.yml
+k8s_version: "1.29"
+pod_network_cidr: "192.168.0.0/16"
+containerd_version: "1.7.27-1"
+crictl_version: "v1.29.0"
+required_ports:
+  - 6443
+  - 10259
+  - 10257
+  - 10250
+

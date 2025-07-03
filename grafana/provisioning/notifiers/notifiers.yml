@@ -1,0 +1,8 @@
+notifiers:
+  - name: default-email
+    type: email
+    uid: email-contact
+    org_id: 1
+    is_default: true
+    settings:
+      addresses: "iibgui@yahoo.fr"

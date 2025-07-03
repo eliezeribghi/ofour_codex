@@ -5,7 +5,7 @@ FROM node:23-alpine AS build
 WORKDIR /app
 
 # Copier les fichiers package.json et package-lock.json
-COPY package*.json  .
+COPY package*.json  ./
 
 # Installer les dépendances
 RUN npm install
@@ -30,7 +30,7 @@ COPY --from=build /app/dist /usr/share/nginx/html
 COPY ./nginx/conf/default.conf /etc/nginx/conf.d/default.conf
 
 
-RUN htpasswd   /etc/nginx/.htpasswd api_user
+
 # Expose HTTP port
 EXPOSE 80 443
 

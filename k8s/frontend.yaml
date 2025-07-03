@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      imagePullSecrets:
+      - name: regcred
+      containers:
+      - name: frontend
+        image: eliezeribghi/codex-front:latest
+        ports:
+        - containerPort: 80
+        - containerPort: 443
+        volumeMounts:
+        - name: images
+          mountPath: /usr/share/nginx/html/images
+        - name: nginx-conf
+          mountPath: /etc/nginx/conf.d
+        - name: certbot-www
+          mountPath: /var/www/certbot
+        - name: certbot-conf
+          mountPath: /etc/nginx/ssl
+      volumes:
+      - name: images
+        emptyDir: {}
+      - name: nginx-conf
+        configMap:
+          name: nginx-conf
+      - name: certbot-www
+        emptyDir: {}
+      - name: certbot-conf
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+spec:
+  selector:
+    app: frontend
+  ports:
+  - name: http
+    protocol: TCP
+    port: 80
+    targetPort: 80
+  - name: https
+    protocol: TCP
+    port: 443
+    targetPort: 443
+  type: LoadBalancer

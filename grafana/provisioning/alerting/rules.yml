@@ -1,0 +1,27 @@
+groups:
+  - name: container-cpu-alerts
+    rules:
+      - uid: cpu-alert
+        title: CPU usage above 20%
+        condition: A > 0.2
+        for: "5m"
+        annotations:
+          summary: "Utilisation CPU élevée"
+          description: "La moyenne d'utilisation CPU a dépassé 20% pendant plus de 5 minutes"
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: avg(container_cpu_usage_seconds_total)
+              format: time_series
+              interval: ""
+              datasource:
+                type: prometheus
+                uid: prometheus
+
+
+
+

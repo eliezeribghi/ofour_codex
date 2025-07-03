@@ -1,14 +1,17 @@
 <?php
-use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\CategoryController;
 
 use App\Http\Controllers\RecetteController;
-use App\Http\Controllers\IngredientController;
+//use App\Http\Controllers\IngredientController;
 use App\Models\Ingredient;
 use Illuminate\Http\Request;
 
+use Illuminate\Support\Facades\Route;
 
+Route::get('/test', function () {
+    return response()->json(['message' => 'API is working god']);
+});
 
 /*
 |--------------------------------------------------------------------------
@@ -29,6 +32,6 @@ use Illuminate\Http\Request;
 
 Route::get('categories', [CategoryController::class, 'index']); // Récupérer les catégories
 Route::get('/recettes', [RecetteController::class, 'list']);
-Route::get('/ingredients', [IngredientController::class, 'list']);
+//Route::get('/ingredients', [IngredientController::class, 'list']);
 Route::get('/recettes/{id}', [RecetteController::class, 'show']);
 Route::post('/recettes', [RecetteController::class, 'store']);

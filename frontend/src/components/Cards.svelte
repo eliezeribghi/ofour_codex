@@ -22,7 +22,7 @@
   async function getCardData() {
     try {
       // const response = await fetch(`http://localhost:8000/api/recettes/`);
-      const response = await fetch(`https://nor5-server.eddi.cloud/api/recettes/`);
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/recettes/`);
       if (response.ok) {
         recettes = await response.json();
         console.log("test", recettes);
@@ -42,7 +42,8 @@
   async function getRecetteDetails(id) {
     try {
       // const response = await fetch(`http://localhost:8000/api/recettes/${id}`);
-      const response = await fetch(`https://nor5-server.eddi.cloud/api/recettes/${id}`);
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/recettes/${id}`);
+
 
       if (response.ok) {
         selectedRecette = await response.json(); // Stocke les détails de la recette

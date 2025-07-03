@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend-config
+data:
+  DB_CONNECTION: "mysql"
+  DB_HOST: "mysql"
+  DB_PORT: "3306"
+  DB_DATABASE: "ofour"
+  DB_USERNAME: "user_db"
+  DB_PASSWORD: "M0tDeP@ssSecur3!"
