@@ -1,0 +1,3 @@
+---
+vault_ssh_pass: user
+vault_become_pass: user

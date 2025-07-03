@@ -1,7 +1,0 @@
-[auto]
-server-uuid=f1fb1626-c2e7-11ef-a21b-0242ac190002
-lower_case_table_names=1
-[mysqld]
-innodb_use_native_aio=0
-
-

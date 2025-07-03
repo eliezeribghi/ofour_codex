@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\DB;
 
 class RecetteController extends Controller
 {
-    
+
     /**
      * Affiche la liste des recettes.
      *
@@ -28,7 +28,9 @@ class RecetteController extends Controller
                 ->get()
                 ->map(function ($recette) {
                     // Vérification et formatage correct de l'image
-                    $recette->image_url = $recette->image_url ? asset('./images/' . basename($recette->image_url)) : null;
+                    //$recette->image_url = $recette->image_url ? asset('./images/' . basename($recette->image_url)) : null;
+                    $recette->image_url = $recette->image_url ? secure_asset('./images/' . basename($recette->image_url)) : null;
+
                     return $recette;
                 });
 

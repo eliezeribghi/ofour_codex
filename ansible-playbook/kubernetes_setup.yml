@@ -1,0 +1,589 @@
+---
+# Nom du playbook : Configuration des machines virtuelles pour Kubernetes
+- name: Configure Kubernetes VMs
+  # Cible les hôtes du groupe 'kubernetes_nodes' défini dans l'inventaire Ansible
+  hosts: kubernetes_nodes
+  # Active les privilèges root pour exécuter les commandes nécessitant des droits d'administration
+  become: true
+  # Définition des variables globales utilisées dans le playbook
+  vars:
+    # Version de Kubernetes à installer
+    k8s_version: "1.29"
+    # Plage d'adresses IP pour le réseau de pods
+    pod_network_cidr: "192.168.0.0/16"
+    # Version de containerd (runtime de conteneurs)
+    containerd_version: "1.7.27-1"
+    # Version de crictl (outil CLI pour interagir avec le CRI)
+    crictl_version: "v1.29.0"
+    # Liste des ports nécessaires pour Kubernetes
+    required_ports:
+      - 6443  # Port de l'API Kubernetes
+      - 10259 # Port du Scheduler
+      - 10257 # Port du Controller Manager
+      - 10250 # Port de Kubelet
+  # Inclusion des variables sensibles depuis un fichier vault.yml (par exemple, clés SSH)
+  vars_files:
+    - vault.yml
+    - vars/main.yml
+  # Liste des tâches à exécuter
+  tasks:
+    # Tâche : Collecte des informations sur les hôtes
+    - name: Gathering Facts
+      ansible.builtin.setup:
+      # Toujours exécuté, même avec des tags spécifiques
+      tags: always
+
+    # Tâche : Arrêt des services Kubernetes et associés sur le nœud maître
+    - name: Stop Kubernetes and related services
+      ansible.builtin.service:
+        name: "{{ item }}"  # Nom du service à arrêter
+        state: stopped      # Arrête le service
+        enabled: false      # Désactive le démarrage automatique
+      loop:
+        - kubelet    # Service Kubernetes principal
+        - containerd # Runtime de conteneurs
+      when: inventory_hostname == 'k8s-master'
+      ignore_errors: true
+      tags: reset
+
+    # Tâche : Suppression des fichiers de service systemd existants
+    - name: Remove existing systemd service files
+      ansible.builtin.file:
+        path: "/etc/systemd/system/{{ item }}.service"  # Chemin du fichier de service
+        state: absent                                  # Supprime le fichier
+      loop:
+        - kubelet
+        - containerd
+      when: inventory_hostname == 'k8s-master'
+      tags: reset
+
+    # Tâche : Rechargement du démon systemd après suppression des fichiers
+    - name: Reload systemd daemon
+      ansible.builtin.command: systemctl daemon-reload
+      when: inventory_hostname == 'k8s-master'
+      tags: reset
+
+    # Tâche : Masquage des services pour empêcher leur démarrage
+    - name: Mask Kubernetes and related services
+      ansible.builtin.systemd:
+        name: "{{ item }}"  # Nom du service
+        masked: true        # Masque le service
+        state: stopped      # Arrête le service
+      loop:
+        - kubelet
+        - containerd
+      when: inventory_hostname == 'k8s-master'
+      ignore_errors: true
+      tags: reset
+
+    # Tâche : Réinitialisation de la configuration Kubernetes existante
+    - name: Reset existing Kubernetes configuration
+      ansible.builtin.command: kubeadm reset -f  # Force la réinitialisation
+      ignore_errors: true
+      when: inventory_hostname == 'k8s-master'
+      tags: reset
+
+    # Tâche : Suppression des fichiers résiduels de Kubernetes
+    - name: Remove Kubernetes residual files
+      ansible.builtin.file:
+        path: "{{ item }}"  # Chemin du dossier à supprimer
+        state: absent       # Supprime le dossier
+      loop:
+        - /etc/kubernetes    # Configurations Kubernetes
+        - /var/lib/kubelet   # Données de Kubelet
+        - /var/lib/etcd      # Données de la base Etcd
+      when: inventory_hostname == 'k8s-master'
+      tags: reset
+
+    # Tâche : Suppression des fichiers résiduels de K3s
+    - name: Remove K3s residual files
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - /var/lib/rancher  # Données de Rancher
+        - /etc/rancher      # Configurations de Rancher
+        - /var/lib/k3s      # Données de K3s
+      ignore_errors: true
+      tags: reset
+
+    # Tâche : Suppression du répertoire de données K3s
+    - name: Remove K3s data directories
+      ansible.builtin.command: rm -rf /var/lib/rancher/k3s
+      ignore_errors: true
+      tags: reset
+
+    # Tâche : Identification des processus utilisant les ports Kubernetes
+    - name: Find processes using Kubernetes ports
+      ansible.builtin.shell: lsof -t -i:{{ item }} || true  # Liste les PIDs sur le port
+      loop: "{{ required_ports }}"  # Boucle sur les ports requis
+      register: port_processes      # Stocke les résultats
+      changed_when: false           # Pas de changement d'état
+      when: inventory_hostname == 'k8s-master'
+      tags: reset
+
+    # Tâche : Débogage des processus utilisant les ports
+    - name: Debug processes using ports
+      ansible.builtin.shell: lsof -i :{{ item.item }} || true
+      loop: "{{ port_processes.results }}"
+      register: process_details
+      changed_when: false
+      when: inventory_hostname == 'k8s-master' and item.stdout | length > 0
+      tags: reset, debug
+
+    # Tâche : Affichage des détails des processus
+    - name: Display process details
+      ansible.builtin.debug:
+        msg: "Port {{ item.item.item }} est utilisé par : {{ item.stdout_lines | default(['aucun']) }}"
+      loop: "{{ process_details.results }}"
+      when: inventory_hostname == 'k8s-master' and item.stdout is defined and item.stdout | length > 0
+      tags: reset, debug
+
+    # Tâche : Collecte des PIDs uniques à terminer
+    - name: Collect unique PIDs to kill
+      ansible.builtin.set_fact:
+        pids_to_kill: "{{ port_processes.results | select('skipped', false) | map(attribute='stdout') | select('string') | select('length') | list | unique }}"
+      when: inventory_hostname == 'k8s-master' and port_processes.results is defined
+      tags: reset
+
+    # Tâche : Terminaison des processus utilisant les ports
+    - name: Kill processes using Kubernetes ports
+      ansible.builtin.command: kill -9 {{ item }}
+      loop: "{{ pids_to_kill | default([]) }}"
+      when: inventory_hostname == 'k8s-master' and pids_to_kill is defined and pids_to_kill | length > 0
+      ignore_errors: true
+      tags: reset
+
+    # Tâche : Vérification que les ports requis sont libres
+    - name: Check if required ports are free
+      ansible.builtin.wait_for:
+        port: "{{ item }}"  # Port à vérifier
+        state: stopped      # Doit être libre
+        timeout: 60         # Temps d'attente maximal
+        delay: 2            # Délai avant vérification
+      loop: "{{ required_ports }}"
+      register: port_check
+      when: inventory_hostname == 'k8s-master'
+      tags: reset
+
+    # Tâche : Redémarrage du nœud maître si les ports sont encore utilisés
+    - name: Reboot master node if ports are still in use
+      ansible.builtin.reboot:
+        reboot_timeout: 300  # Temps maximal pour le redémarrage
+      when: inventory_hostname == 'k8s-master' and port_check.results is defined and port_check.results | select('failed') | list | length > 0
+      tags: reset
+
+    # Tâche : Suppression de l'ancien dépôt Kubernetes si présent
+    - name: Remove old Kubernetes APT repository
+      ansible.builtin.file:
+        path: /etc/apt/sources.list.d/kubernetes.list
+        state: absent
+      tags: setup
+
+    # Tâche : Création du répertoire pour les clés APT
+    - name: Create APT keyring directory
+      ansible.builtin.file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: '0755'
+      tags: setup
+
+    # Tâche : Ajout de la clé APT de Kubernetes
+    - name: Add Kubernetes APT key
+      ansible.builtin.get_url:
+        url: "https://pkgs.k8s.io/core:/stable:/v{{ k8s_version }}/deb/Release.key"
+        dest: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+        mode: '0644'
+        force: true
+      tags: setup
+
+    # Tâche : Ajout du dépôt APT de Kubernetes
+    - name: Add Kubernetes APT repository
+      ansible.builtin.apt_repository:
+        repo: "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v{{ k8s_version }}/deb/ /"
+        state: present
+        filename: kubernetes
+        update_cache: yes
+      tags: setup
+
+    # Tâche : Installation des dépendances nécessaires
+    - name: Install dependencies
+      ansible.builtin.apt:
+        update_cache: yes  # Met à jour le cache APT
+        name:
+          - apt-transport-https  # Support pour HTTPS dans APT
+          - ca-certificates      # Certificats pour HTTPS
+          - curl                 # Outil de téléchargement
+          - gnupg                # Gestion des clés GPG
+          - lsb-release          # Informations sur la distribution
+        state: present
+      tags: setup
+
+    # Tâche : Installation des composants Kubernetes
+    - name: Install Kubernetes components
+      ansible.builtin.apt:
+        name:
+          - "kubelet={{ k8s_version }}.*"
+          - "kubeadm={{ k8s_version }}.*"
+          - "kubectl={{ k8s_version }}.*"
+        state: present
+        update_cache: true
+      tags: setup
+
+    # Tâche : Suppression de l'ancien fichier Docker APT si doublons
+    - name: Remove old Docker APT repository to avoid duplicates
+      ansible.builtin.file:
+        path: /etc/apt/sources.list.d/docker.list
+        state: absent
+      tags: setup
+
+    # Tâche : Ajout de la clé APT de Docker
+    - name: Add Docker apt key
+      ansible.builtin.get_url:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        dest: /etc/apt/keyrings/docker.asc
+        mode: '0644'
+      tags: setup
+
+    # Tâche : Ajout du dépôt APT de Docker
+    - name: Add Docker apt repository
+      ansible.builtin.apt_repository:
+        repo: "deb [arch={{ ansible_architecture | regex_replace('x86_64', 'amd64') | regex_replace('aarch64', 'arm64') }} signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+        state: present
+        filename: docker
+        update_cache: yes
+      tags: setup
+
+    # Tâche : Vérification des versions disponibles de containerd
+    - name: Check available containerd versions
+      ansible.builtin.shell: apt-cache madison containerd.io
+      register: containerd_versions
+      changed_when: false
+      ignore_errors: true
+      tags: setup, debug
+
+    # Tâche : Affichage des versions disponibles de containerd
+    - name: Debug available containerd versions
+      ansible.builtin.debug:
+        msg: "Versions disponibles de containerd.io : {{ containerd_versions.stdout_lines | default(['aucune']) }}"
+      when: containerd_versions.rc == 0
+      tags: setup, debug
+
+    # Tâche : Installation de containerd
+    - name: Install containerd
+      ansible.builtin.apt:
+        name: containerd.io={{ containerd_version }}
+        state: present
+        update_cache: true
+      tags: setup
+
+    # Tâche : Vérification de l'URL de téléchargement de crictl
+    - name: Verify crictl download URL
+      ansible.builtin.uri:
+        url: "https://github.com/kubernetes-sigs/cri-tools/releases/download/{{ crictl_version }}/crictl-{{ crictl_version }}-linux-amd64.tar.gz"
+        method: HEAD
+        status_code: 200
+      register: crictl_url_check
+      failed_when: crictl_url_check.status != 200
+      tags: setup, debug
+
+    # Tâche : Téléchargement de crictl
+    - name: Install crictl
+      ansible.builtin.get_url:
+        url: "https://github.com/kubernetes-sigs/cri-tools/releases/download/{{ crictl_version }}/crictl-{{ crictl_version }}-linux-amd64.tar.gz"
+        dest: /tmp/crictl.tar.gz
+        mode: '0644'
+      register: crictl_download
+      tags: setup
+
+    # Tâche : Extraction de crictl
+    - name: Extract crictl
+      ansible.builtin.unarchive:
+        src: /tmp/crictl.tar.gz
+        dest: /usr/local/bin
+        remote_src: true
+        mode: '0755'
+      tags: setup
+
+    # Tâche : Vérification de l'existence du service Docker
+    - name: Check if Docker service exists
+      ansible.builtin.command: systemctl status docker
+      register: docker_status
+      failed_when: false
+      changed_when: false
+      ignore_errors: true
+      tags: setup
+
+    # Tâche : Arrêt et désactivation de Docker s'il est présent
+    - name: Stop and disable Docker if present
+      ansible.builtin.service:
+        name: docker
+        state: stopped
+        enabled: false
+      when: docker_status.rc == 0
+      ignore_errors: true
+      tags: setup
+
+    # Tâche : Création du répertoire pour containerd
+    - name: Create containerd directory
+      ansible.builtin.file:
+        path: /etc/containerd
+        state: directory
+        mode: '0755'
+      tags: setup
+
+    # Tâche : Génération de la configuration par défaut de containerd
+    - name: Generate default containerd configuration
+      ansible.builtin.command: containerd config default
+      register: containerd_default_config
+      changed_when: false
+      tags: setup
+
+    # Tâche : Configuration personnalisée de containerd pour Kubernetes
+    - name: Configure containerd for Kubernetes
+      ansible.builtin.copy:
+        content: |
+          version = 2
+          [plugins]
+            [plugins."io.containerd.grpc.v1.cri"]
+              sandbox_image = "registry.k8s.io/pause:3.8"  # Image pour les pods sandbox
+              systemd_cgroup = true                        # Utilisation de systemd pour cgroups
+              enable_cdi = true                            # Activation de CDI
+              disable_tcp_service = false                  # Service TCP activé
+            [plugins."io.containerd.grpc.v1.cri.containerd.runtimes.runc"]
+              runtime_type = "io.containerd.runc.v2"       # Runtime runc
+              [plugins."io.containerd.grpc.v1.cri.containerd.runtimes.runc.options"]
+                SystemdCgroup = true                       # Cgroups systemd pour runc
+          [debug]
+            level = "info"                                 # Niveau de log
+        dest: /etc/containerd/config.toml
+        mode: '0644'
+      tags: setup
+
+    # Tâche : Redémarrage de containerd après configuration
+    - name: Restart containerd after configuration
+      ansible.builtin.service:
+        name: containerd
+        state: restarted
+      tags: setup
+
+    # Tâche : Création d'un fichier de configuration vide pour crictl
+    - name: Create empty crictl configuration
+      ansible.builtin.copy:
+        content: ""
+        dest: /etc/crictl.yaml
+        mode: '0644'
+      tags: setup
+
+    # Tâche : Débogage de la configuration de containerd
+    - name: Debug containerd configuration
+      ansible.builtin.command: cat /etc/containerd/config.toml
+      register: containerd_config_content
+      changed_when: false
+      tags: setup, debug
+
+    # Tâche : Affichage de la configuration de containerd
+    - name: Display containerd configuration
+      ansible.builtin.debug:
+        msg: "Configuration de containerd : {{ containerd_config_content.stdout_lines }}"
+      tags: setup, debug
+
+    # Tâche : Vérification que containerd est démarré et activé
+    - name: Ensure containerd is enabled and started
+      ansible.builtin.service:
+        name: containerd
+        state: started
+        enabled: true
+      register: containerd_service
+      failed_when: containerd_service.state != 'started'
+      tags: setup
+
+    # Tâche : Vérification de la compatibilité CRI de containerd
+    - name: Verify containerd CRI compatibility
+      ansible.builtin.command: crictl -r unix:///var/run/containerd/containerd.sock info
+      register: crictl_check
+      changed_when: false
+      failed_when: crictl_check.rc != 0
+      tags: verify
+
+    # Tâche : Désactivation du swap
+    - name: Disable swap
+      ansible.builtin.command: swapoff -a
+      when: ansible_swaptotal_mb > 0
+      changed_when: false
+      tags: setup
+
+    # Tâche : Suppression du swap dans /etc/fstab
+    - name: Remove swap from fstab
+      ansible.builtin.lineinfile:
+        path: /etc/fstab
+        regexp: '^.*swap.*'
+        state: absent
+      tags: setup
+
+    # Tâche : Verrouillage des versions des paquets Kubernetes
+    - name: Hold Kubernetes packages
+      ansible.builtin.dpkg_selections:
+        name: "{{ item }}"
+        selection: hold
+      loop:
+        - kubelet
+        - kubeadm
+        - kubectl
+      tags: setup
+
+    # Tâche : Création des utilisateurs
+    - name: Create users
+      ansible.builtin.user:
+        name: "{{ item.name }}"
+        create_home: true
+        shell: /bin/bash
+      loop: "{{ ssh_users }}"
+      when: ssh_users is defined
+      tags: setup
+
+    # Tâche : Copie des clés SSH depuis le vault
+    - name: Copy SSH keys from local vault
+      ansible.builtin.authorized_key:
+        user: "{{ item.name }}"
+        state: present
+        key: "{{ item.ssh_key }}"
+      loop: "{{ ssh_users }}"
+      when: ssh_users is defined and item.ssh_key is defined
+      tags: setup
+
+    # Tâche : Configuration dynamique du fichier /etc/hosts
+    - name: Configure hosts file dynamically
+      ansible.builtin.lineinfile:
+        path: /etc/hosts
+        line: "{{ hostvars[item].ansible_host }} {{ hostvars[item].inventory_hostname }}"
+        state: present
+      loop: "{{ groups['kubernetes_nodes'] }}"
+      when: hostvars[item].ansible_host is defined
+      tags: setup
+
+    # Tâche : Vérification que le service containerd est en cours d'exécution
+    - name: Verify containerd service is running
+      ansible.builtin.service:
+        name: containerd
+        state: started
+      check_mode: true
+      register: containerd_status
+      failed_when: containerd_status.state != 'started'
+      tags: verify
+
+    # Tâche : Vérification de la configuration de containerd
+    - name: Verify containerd configuration
+      ansible.builtin.command: cat /etc/containerd/config.toml
+      register: containerd_config
+      changed_when: false
+      failed_when: >
+        'version = 2' not in containerd_config.stdout or
+        'sandbox_image = "registry.k8s.io/pause:3.8"' not in containerd_config.stdout or
+        'systemd_cgroup = true' not in containerd_config.stdout
+      tags: verify
+
+    # Tâche : Vérification que les paquets Kubernetes sont verrouillés
+    - name: Verify Kubernetes packages are held
+      ansible.builtin.command: apt-mark showhold
+      register: held_packages
+      changed_when: false
+      failed_when: >
+        'kubelet' not in held_packages.stdout or
+        'kubeadm' not in held_packages.stdout or
+        'kubectl' not in held_packages.stdout
+      tags: verify
+
+    # Tâche : Vérification des versions des composants Kubernetes
+    - name: Verify Kubernetes component versions
+      ansible.builtin.command: kubeadm version
+      register: kubeadm_version
+      changed_when: false
+      failed_when: "'v{{ k8s_version }}' not in kubeadm_version.stdout"
+      tags: verify
+
+    # Tâche : Vérification de la configuration du fichier /etc/hosts
+    - name: Verify hosts file configuration
+      ansible.builtin.command: cat /etc/hosts
+      register: hosts_file
+      changed_when: false
+      failed_when: >
+        '{{ hostvars["k8s-master"].ansible_host }} k8s-master' not in hosts_file.stdout or
+        '{{ hostvars["k8s-worker1"].ansible_host }} k8s-worker1' not in hosts_file.stdout
+      tags: verify
+
+    # Tâche : Initialisation du nœud maître Kubernetes
+    - name: Initialize Kubernetes master
+      ansible.builtin.command: kubeadm init --pod-network-cidr={{ pod_network_cidr }} --ignore-preflight-errors=NumCPU
+      when: inventory_hostname == 'k8s-master'
+      register: kubeadm_init
+      changed_when: kubeadm_init.rc == 0
+      failed_when: kubeadm_init.rc != 0 and 'already exists' not in kubeadm_init.stderr
+      tags: init
+
+    # Tâche : Création du répertoire .kube pour l'utilisateur
+    - name: Create kube directory for master
+      ansible.builtin.file:
+        path: /home/{{ ansible_user }}/.kube
+        state: directory
+        mode: '0755'
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+      when: inventory_hostname == 'k8s-master'
+      tags: init
+
+    # Tâche : Copie du fichier kubeconfig dans le répertoire utilisateur
+    - name: Copy kubeconfig to user home
+      ansible.builtin.copy:
+        src: /etc/kubernetes/admin.conf
+        dest: /home/{{ ansible_user }}/.kube/config
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: '0644'
+        remote_src: true
+      when: inventory_hostname == 'k8s-master'
+      tags: init
+
+    # Tâche : Capture de la commande kubeadm join
+    - name: Capture kubeadm join command
+      ansible.builtin.shell: kubeadm token create --print-join-command
+      when: inventory_hostname == 'k8s-master'
+      register: kubeadm_join_command
+      changed_when: false
+      tags: init
+
+    # Tâche : Stockage de la commande kubeadm join comme fait
+    - name: Set kubeadm join command fact
+      ansible.builtin.set_fact:
+        kubeadm_join_command: "{{ kubeadm_join_command.stdout }}"
+      when: inventory_hostname == 'k8s-master'
+      delegate_facts: true
+      tags: init
+
+    # Tâche : Joindre les nœuds travailleurs au cluster
+    - name: Join worker nodes to cluster
+      ansible.builtin.command: "{{ hostvars['k8s-master'].kubeadm_join_command }}"
+      when: inventory_hostname != 'k8s-master' and hostvars['k8s-master'].kubeadm_join_command is defined
+      register: kubeadm_join
+      changed_when: kubeadm_join.rc == 0
+      failed_when: kubeadm_join.rc != 0 and 'already exists' not in kubeadm_join.stderr
+      tags: init
+
+    # Tâche : Installation du plugin réseau Calico
+    - name: Install Calico CNI
+      ansible.builtin.command: kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.27.0/manifests/calico.yaml
+      when: inventory_hostname == 'k8s-master'
+      environment:
+        KUBECONFIG: /home/{{ ansible_user }}/.kube/config
+      register: calico_install
+      changed_when: calico_install.rc == 0
+      tags: init
+
+  # Gestionnaire : Redémarrage de containerd
+  handlers:
+    - name: Restart containerd
+      ansible.builtin.service:
+        name: containerd
+        state: restarted
+      register: containerd_restart
+      failed_when: containerd_restart.state != 'started'

@@ -21,6 +21,7 @@ export default defineConfig({
     },
   },
   plugins: [svelte()],
+  envPrefix: 'VITE_',
   server: {
     host: true,
     watch: {

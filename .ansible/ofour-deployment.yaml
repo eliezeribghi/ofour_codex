@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: blog-deployment
+spec:
+  replicas: 3  # Lancer 3 copies de l'application pour la fiabilité
+  selector:
+    matchLabels:
+      app: blog
+  template:
+    metadata:
+      labels:
+        app: blog
+    spec:
+      containers:
+      - name: blog
+        image: nor5/codex-frontends:latest  # Ton image Docker
+        ports:
+        - containerPort: 5000  # Port de ton application Flask

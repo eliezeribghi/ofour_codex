@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: adminer-config
+data:
+  # Variables de ton .env
+  ADMINER_DEFAULT_SERVER: "mysql"

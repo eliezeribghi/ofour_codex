@@ -1,0 +1,12 @@
+---
+- hosts: kubernetes_nodes
+  vars_files:
+    - vault.yml
+  tasks:
+    - name: Ping hosts
+      ansible.builtin.ping:
+    - name: Debug variables
+      ansible.builtin.debug:
+        msg: |
+          vault_ssh_pass={{ vault_ssh_pass }},
+          vault_become_pass={{ vault_ssh_pass }}
