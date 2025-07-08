@@ -80,7 +80,7 @@ resource "google_compute_instance" "server" {
   network_interface {
     network = "default"
     access_config {
-      nat_ip = google_compute_address.default.address # Maintenant Terraform le reconnaît
+      nat_ip = google_compute_address.default.address 
     }
   }
 
